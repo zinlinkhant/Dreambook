@@ -9,6 +9,8 @@ import { User } from './users/entities/user.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BooksModule } from './books/books.module';
 import { Book } from './books/entities/book.entity';
+import { CategoriesModule } from './categories/categories.module';
+import { Category } from './categories/entities/category.entity';
 
 @Module({
   imports: [
@@ -24,7 +26,7 @@ import { Book } from './books/entities/book.entity';
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_DATABASE'),
-        entities: [User,Book],
+        entities: [User,Book,Category],
         synchronize: true, // Set to false in production
       }),
       inject: [ConfigService],
@@ -32,6 +34,7 @@ import { Book } from './books/entities/book.entity';
     AuthModule,
     UsersModule,
     BooksModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

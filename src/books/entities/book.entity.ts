@@ -1,3 +1,4 @@
+import { Category } from 'src/categories/entities/category.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   Entity,
@@ -15,7 +16,7 @@ export class Book {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text' , unique:true})
   title: string;
 
   @Column({ type: 'text', nullable: true })
@@ -27,11 +28,11 @@ export class Book {
   @Column({ type: 'text', unique: false })
   slug: string;
 
-  // @Column({ type: 'int' })
-  // categoryId: number;
+  @Column({ type: 'int' })
+  categoryId: number;
 
   @Column({ type: 'text', nullable: false })
-  keywords: string;
+  keywords: string[];
 
   @Column({ type: 'boolean', default: true })
   status: boolean;
@@ -48,4 +49,8 @@ export class Book {
   @ManyToOne(() => User, (user) => user.books)  
   @JoinColumn({ name: 'userId' })
   user: User;
+
+  @ManyToOne(()=>Category, (category)=> category.books )
+  @JoinColumn({name: "categoryId"})
+  category:Category;
 }
