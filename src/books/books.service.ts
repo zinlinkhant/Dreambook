@@ -17,7 +17,12 @@ export class BooksService {
   }
 
   async findAll() {
-    const books =await this.bookRepository.find()
+    const books =await this.bookRepository.find({
+      relations:{
+        user:true,
+        category:true
+      }
+    })
     return books;
   }
 
@@ -25,6 +30,10 @@ export class BooksService {
     const book =await this.bookRepository.findOneOrFail({
       where:{
         id
+      },
+      relations:{
+        user:true,
+        category:true
       }
   })
     return book;
