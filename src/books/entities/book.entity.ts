@@ -1,4 +1,5 @@
 import { Category } from 'src/categories/entities/category.entity';
+import { Chapter } from 'src/chapters/entities/chapter.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   Entity,
@@ -7,7 +8,8 @@ import {
   ManyToOne,
   JoinColumn,
   CreateDateColumn,
-  UpdateDateColumn
+  UpdateDateColumn,
+  OneToMany
 } from 'typeorm';
 
 
@@ -53,4 +55,7 @@ export class Book {
   @ManyToOne(()=>Category, (category)=> category.books )
   @JoinColumn({name: "categoryId"})
   category:Category;
+
+  @OneToMany(() => Chapter, (chapter) => chapter.book)
+  chapters: Chapter[];
 }

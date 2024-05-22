@@ -11,6 +11,8 @@ import { BooksModule } from './books/books.module';
 import { Book } from './books/entities/book.entity';
 import { CategoriesModule } from './categories/categories.module';
 import { Category } from './categories/entities/category.entity';
+import { ChaptersModule } from './chapters/chapters.module';
+import { Chapter } from './chapters/entities/chapter.entity';
 
 @Module({
   imports: [
@@ -26,7 +28,7 @@ import { Category } from './categories/entities/category.entity';
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_DATABASE'),
-        entities: [User,Book,Category],
+        entities: [User,Book,Category,Chapter],
         synchronize: true, // Set to false in production
       }),
       inject: [ConfigService],
@@ -35,6 +37,7 @@ import { Category } from './categories/entities/category.entity';
     UsersModule,
     BooksModule,
     CategoriesModule,
+    ChaptersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
