@@ -1,5 +1,4 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
@@ -12,13 +11,6 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) { }
 
-  async create(createUserDto: CreateUserDto) {
-    // email unique
-    await this.hasEmail(createUserDto.email);
-
-    const newUser = this.usersRepository.create(createUserDto);
-    return this.usersRepository.save(newUser);
-  }
 
   findAll(
     email: string
@@ -68,7 +60,7 @@ export class UsersService {
 
     console.log(updateUser);
 
-    // return this.usersRepository.save(updateUser);
+    return this.usersRepository.save(updateUser);
   }
 
   async hasEmail(email: string) {

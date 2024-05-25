@@ -12,15 +12,16 @@ export class CategoriesService {
     private categoryRepository: Repository<Category>
   ){}
 
-  create(createCategoryDto: CreateCategoryDto) {
-    
+  async create(createCategoryDto: CreateCategoryDto) {
+    const category = await this.categoryRepository.create(createCategoryDto)
+    return await this.categoryRepository.save(category)
   }
 
-  findAll() {
+  async findAll() {
     return this.categoryRepository.find()
   }
 
-  findOne(id: number) {
+  async findOne(id: number) {
     return this.categoryRepository.findOneOrFail({
       where:{
         id
@@ -28,11 +29,15 @@ export class CategoriesService {
     })
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
+  async update(id: number, updateCategoryDto: UpdateCategoryDto) {
+    const category = await this.findOne(id)
+    Object.assign(category,updateCategoryDto)
+    return this.categoryRepository.save(category);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+  async remove(id: number) {
+    const category =await this.findOne(id)
+    return await this.categoryRepository.delete(id)
+    return category
   }
 }

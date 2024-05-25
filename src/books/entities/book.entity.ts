@@ -42,6 +42,9 @@ export class Book {
   @Column({ type: 'int' })
   userId: number;
 
+  @Column({type:'int'})
+  chapterProgress: number;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
