@@ -13,6 +13,14 @@ import { CategoriesModule } from './categories/categories.module';
 import { Category } from './categories/entities/category.entity';
 import { ChaptersModule } from './chapters/chapters.module';
 import { Chapter } from './chapters/entities/chapter.entity';
+import { ChapterProgressModule } from './chapter-progress/chapter-progress.module';
+import { ChapterProgress } from './chapter-progress/entities/chapter-progress.entity';
+import { FavouriteModule } from './favourite/favourite.module';
+import { Favourite } from './favourite/entities/favourite.entity';
+import { InterestedCategoryModule } from './interested-category/interested-category.module';
+import { InterestedCategory } from './interested-category/entities/interested-category.entity';
+import { CommentsModule } from './comments/comments.module';
+import { Comment } from './comments/entities/comment.entity';
 
 @Module({
   imports: [
@@ -28,8 +36,8 @@ import { Chapter } from './chapters/entities/chapter.entity';
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_DATABASE'),
-        entities: [User,Book,Category,Chapter],
-        synchronize: true, // Set to false in production
+        entities: [User,Book,Category,Chapter,ChapterProgress,Favourite,InterestedCategory,Comment],
+        synchronize: true, 
       }),
       inject: [ConfigService],
     }),
@@ -38,6 +46,10 @@ import { Chapter } from './chapters/entities/chapter.entity';
     BooksModule,
     CategoriesModule,
     ChaptersModule,
+    ChapterProgressModule,
+    FavouriteModule,
+    InterestedCategoryModule,
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

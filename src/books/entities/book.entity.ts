@@ -1,5 +1,8 @@
 import { Category } from 'src/categories/entities/category.entity';
+import { ChapterProgress } from 'src/chapter-progress/entities/chapter-progress.entity';
 import { Chapter } from 'src/chapters/entities/chapter.entity';
+import { Comment } from 'src/comments/entities/comment.entity';
+import { Favourite } from 'src/favourite/entities/favourite.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   Entity,
@@ -58,4 +61,13 @@ export class Book {
 
   @OneToMany(() => Chapter, (chapter) => chapter.book)
   chapters: Chapter[];
+
+  @OneToMany(() => ChapterProgress, chapterProgress => chapterProgress.book)
+  chapterProgress: ChapterProgress[];
+
+  @OneToMany(() => Favourite, favourite => favourite.book)
+  favourites: Favourite[];
+
+   @OneToMany(() => Comment, comment => comment.book)
+  comments: Comment[];
 }
