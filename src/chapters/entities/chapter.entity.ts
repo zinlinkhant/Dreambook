@@ -1,5 +1,5 @@
 import { Book } from 'src/books/entities/book.entity';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('chapters')
 export class Chapter {
@@ -27,4 +27,10 @@ export class Chapter {
   @ManyToOne(() => Book, (book) => book.chapters)
   @JoinColumn({ name: 'bookId' })
   book: Book;
+
+   @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
 }

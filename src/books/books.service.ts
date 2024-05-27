@@ -40,10 +40,8 @@ export class BooksService {
   }
 
   async update(id: number, updateBookDto: UpdateBookDto) {
-        const book = await this.findOne(id);
-
+    const book = await this.findOne(id);
     Object.assign(book, updateBookDto);
-
     return this.bookRepository.save(book);
   }
 

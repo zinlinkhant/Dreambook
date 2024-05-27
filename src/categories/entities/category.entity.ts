@@ -1,6 +1,6 @@
 import { Book } from "src/books/entities/book.entity";
 import { InterestedCategory } from "src/interested-category/entities/interested-category.entity";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity('categories')
 export class Category {
@@ -21,4 +21,10 @@ export class Category {
 
      @OneToMany(() => InterestedCategory, interestedCategory => interestedCategory.category)
   interestedCategories: InterestedCategory[];
+
+     @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
 }
