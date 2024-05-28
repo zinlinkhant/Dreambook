@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import config from './typeorm/typeorm.config';
 
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
@@ -13,7 +14,6 @@ import { ChapterProgressModule } from './chapter-progress/chapter-progress.modul
 import { FavouriteModule } from './favourite/favourite.module';
 import { InterestedCategoryModule } from './interested-category/interested-category.module';
 import { CommentsModule } from './comments/comments.module';
-import config from './typeorm/typeorm.config';
 
 
 
