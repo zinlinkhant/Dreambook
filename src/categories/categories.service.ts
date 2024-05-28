@@ -4,19 +4,26 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from './entities/category.entity';
 import { Repository } from 'typeorm';
+import { FirebaseService } from '../services/firebase/firebase.service';
 
 @Injectable()
 export class CategoriesService {
   constructor(
     @InjectRepository(Category)
-    private categoryRepository: Repository<Category>
+    private categoryRepository: Repository<Category>,
+    private firebaseService:FirebaseService
   ){}
 
-  async create(createCategoryDto: CreateCategoryDto) {
-    const category = await this.categoryRepository.create(createCategoryDto)
-    return await this.categoryRepository.save(category)
+  async create(
+    image:Express.Multer.File,
+    createCategoryDto: CreateCategoryDto) {
+      const result = await this.firebaseService.uploadFile(image);
+    const category = this.categoryRepository.create({
+      ...createCategoryDto,
+      icon:result
+    })
+    return this.categoryRepository.save(category)
   }
-
   async findAll() {
     return this.categoryRepository.find()
   }

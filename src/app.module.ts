@@ -21,8 +21,12 @@ import { InterestedCategoryModule } from './interested-category/interested-categ
 import { InterestedCategory } from './interested-category/entities/interested-category.entity';
 import { CommentsModule } from './comments/comments.module';
 import { Comment } from './comments/entities/comment.entity';
-
-@Module({
+import { ModeEnum } from './utils/mode.enum';
+const sslReject = process.env.MODE === ModeEnum.Production ? {
+  ssl: {
+    rejectUnauthorized: false,
+  },
+} : null;@Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true, // Ensure that ConfigModule is globally available
@@ -37,7 +41,8 @@ import { Comment } from './comments/entities/comment.entity';
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_DATABASE'),
         entities: [User,Book,Category,Chapter,ChapterProgress,Favourite,InterestedCategory,Comment],
-        synchronize: true, 
+        ...sslReject,
+        synchronize: false, 
       }),
       inject: [ConfigService],
     }),

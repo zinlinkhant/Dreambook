@@ -1,15 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UploadedFile, Request, UseInterceptors } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('categories')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Post()
-  create(@Body() createCategoryDto: CreateCategoryDto) {
-    return this.categoriesService.create(createCategoryDto);
+  @UseInterceptors(FileInterceptor('icon'))
+  create(
+    // @Request() req,
+    @UploadedFile() image: Express.Multer.File,
+    @Body() createCategoryDto: CreateCategoryDto) {
+    return this.categoriesService.create(image,createCategoryDto);
   }
 
   @Get()
