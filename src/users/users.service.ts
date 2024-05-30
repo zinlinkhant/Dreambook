@@ -3,19 +3,20 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
+import { FirebaseService } from 'src/services/firebase/firebase.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+      private firebaseService: FirebaseService,
   ) { }
 
 
   findAll(
     email: string
   ) {
-    // ? pagination
     return this.usersRepository.find({
       where: {
         email: email && email
@@ -45,18 +46,21 @@ export class UsersService {
     return user;
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
+  async update(id: number, updateUserDto: UpdateUserDto,image: Express.Multer.File,) {
     await this.hasEmail(updateUserDto.email);
     const user = await this.findOne(id);
-    console.log(user);
-
+    let profileImg = user.profileImg;
+    if(image){
+       profileImg = await this.firebaseService.uploadFile(image)
+      if(user.profileImg){
+        this.firebaseService.deleteFile(user.profileImg)
+      }
+    }
     const updateUser = this.usersRepository.create({
       ...user,
       ...updateUserDto,
+      profileImg
     });
-
-    console.log(updateUser);
-
     return this.usersRepository.save(updateUser);
   }
 
