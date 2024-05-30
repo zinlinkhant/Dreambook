@@ -6,7 +6,7 @@ import { UpdateFavouriteDto } from './dto/update-favourite.dto';
 import { Favourite } from './entities/favourite.entity';
 
 @Injectable()
-export class FavouritesService {
+export class FavouriteService {
   constructor(
     @InjectRepository(Favourite)
     private favouritesRepository: Repository<Favourite>,

@@ -1,26 +1,36 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateInterestedCategoryDto } from './dto/create-interested-category.dto';
 import { UpdateInterestedCategoryDto } from './dto/update-interested-category.dto';
+import { InterestedCategory } from './entities/interested-category.entity';
 
 @Injectable()
 export class InterestedCategoryService {
-  create(createInterestedCategoryDto: CreateInterestedCategoryDto) {
-    return 'This action adds a new interestedCategory';
+  constructor(
+    @InjectRepository(InterestedCategory)
+    private interestedCategoryRepository: Repository<InterestedCategory>,
+  ) {}
+
+  async create(createInterestedCategoryDto: CreateInterestedCategoryDto): Promise<InterestedCategory> {
+    const interestedCategory = this.interestedCategoryRepository.create(createInterestedCategoryDto);
+    return this.interestedCategoryRepository.save(interestedCategory);
   }
 
-  findAll() {
-    return `This action returns all interestedCategory`;
+  async findAll(): Promise<InterestedCategory[]> {
+    return this.interestedCategoryRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} interestedCategory`;
+  async findOne(id: number): Promise<InterestedCategory> {
+    return this.interestedCategoryRepository.findOne({ where: { id } });
   }
 
-  update(id: number, updateInterestedCategoryDto: UpdateInterestedCategoryDto) {
-    return `This action updates a #${id} interestedCategory`;
+  async update(id: number, updateInterestedCategoryDto: UpdateInterestedCategoryDto): Promise<InterestedCategory> {
+    await this.interestedCategoryRepository.update(id, updateInterestedCategoryDto);
+    return this.interestedCategoryRepository.findOne({ where: { id } });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} interestedCategory`;
+  async remove(id: number): Promise<void> {
+    await this.interestedCategoryRepository.delete(id);
   }
 }
