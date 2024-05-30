@@ -8,53 +8,67 @@ import { FirebaseService } from 'src/services/firebase/firebase.service';
 
 @Injectable()
 export class BooksService {
-    constructor(
+  constructor(
     @InjectRepository(Book)
     private bookRepository: Repository<Book>,
-     private firebaseService:FirebaseService
-  ) { }
-  
-  async create(image:Express.Multer.File,createBookDto: CreateBookDto) {
+    private firebaseService: FirebaseService,
+  ) {}
+
+  async create(image: Express.Multer.File, createBookDto: CreateBookDto) {
     const result = await this.firebaseService.uploadFile(image);
     const book = this.bookRepository.create({
       ...createBookDto,
-      coverImg:result
-    })
-    return this.bookRepository.save(book)
+      coverImg: result,
+    });
+    return this.bookRepository.save(book);
   }
 
   async findAll() {
-    const books =await this.bookRepository.find({
-      relations:{
-        user:true,
-        category:true
-      }
-    })
+    const books = await this.bookRepository.find({
+      relations: {
+        user: true,
+        category: true,
+      },
+    });
     return books;
   }
 
   async findOne(id: number) {
-    const book =await this.bookRepository.findOneOrFail({
-      where:{
-        id
+    const book = await this.bookRepository.findOneOrFail({
+      where: {
+        id,
       },
-      relations:{
-        user:true,
-        category:true
-      }
-  })
+      relations: {
+        user: true,
+        category: true,
+      },
+    });
     return book;
   }
 
-  async update(id: number,image:Express.Multer.File, updateBookDto: UpdateBookDto) {
-    const book = await this.findOne(id);
-    Object.assign(book, updateBookDto);
-    return this.bookRepository.save(book);
+  async update (
+    id: number,
+    image: Express.Multer.File,
+    updateBookDto: UpdateBookDto,
+  ){
+    const book = await this.bookRepository.findOne({where:{id}});
+    let coverImg = book.coverImg;
+    if (image) {
+      coverImg = await this.firebaseService.uploadFile(image);
+      this.firebaseService.deleteFile(book.coverImg)
+    }
+    const updatedBook = this.bookRepository.create({
+      ...book,
+      ...updateBookDto,
+      coverImg,
+      keywords: Array.isArray(updateBookDto.keywords) ? updateBookDto.keywords : book.keywords
+  });
+    return this.bookRepository.save(updatedBook);
   }
 
   async remove(id: number) {
-    const book = await this.findOne(id)
-    await this.bookRepository.delete(id)
-    return book
+    const book = await this.findOne(id);
+    await this.bookRepository.delete(id);
+    return book;
   }
 }

@@ -41,17 +41,18 @@ export class CategoriesService {
     image: Express.Multer.File,
     updateCategoryDto: UpdateCategoryDto,
   ) {
-    const category = await this.categoryRepository.findOne(id);
+    const category = await this.categoryRepository.findOne({where:{id}});
     if (!category) {
       throw new NotFoundException(`Category with ID ${id} not found`);
     }
-
     let icon = category.icon;
     if (image) {
       icon = await this.firebaseService.uploadFile(image);
+      this.firebaseService.deleteFile(category.icon)
     }
 
-    const updatedCategory = this.categoryRepository.merge(category, {
+    const updatedCategory = this.categoryRepository.create( {
+      ...category,
       ...updateCategoryDto,
       icon,
     });
