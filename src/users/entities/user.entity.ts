@@ -27,10 +27,10 @@ export class User {
   @Expose({ groups: [GROUP_ADMIN] })
   password: string;
 
-  @Column()
+  @Column({ nullable: true })
   phone:string;
 
-  @Column()
+  @Column({ nullable: true })
   bio:string;
 
   @Column({ nullable: true })
