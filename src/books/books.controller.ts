@@ -26,8 +26,9 @@ export class BooksController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBookDto: UpdateBookDto) {
-    return this.booksService.update(+id, updateBookDto);
+  @UseInterceptors(FileInterceptor('coverImg'))
+  update(@Param('id') id: string, @Body() updateBookDto: UpdateBookDto, @UploadedFile() image: Express.Multer.File,) {
+    return this.booksService.update(+id,image, updateBookDto);
   }
 
   @Delete(':id')

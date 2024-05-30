@@ -46,7 +46,7 @@ export class BooksService {
     return book;
   }
 
-  async update(id: number, updateBookDto: UpdateBookDto) {
+  async update(id: number,image:Express.Multer.File, updateBookDto: UpdateBookDto) {
     const book = await this.findOne(id);
     Object.assign(book, updateBookDto);
     return this.bookRepository.save(book);
