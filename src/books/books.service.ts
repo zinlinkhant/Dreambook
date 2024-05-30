@@ -4,16 +4,23 @@ import { UpdateBookDto } from './dto/update-book.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Book } from './entities/book.entity';
 import { Repository } from 'typeorm';
+import { FirebaseService } from 'src/services/firebase/firebase.service';
 
 @Injectable()
 export class BooksService {
     constructor(
     @InjectRepository(Book)
     private bookRepository: Repository<Book>,
+     private firebaseService:FirebaseService
   ) { }
-  async create(createBookDto: CreateBookDto) {
-    const newBook =await this.bookRepository.create(createBookDto)
-    return await this.bookRepository.save(newBook)
+  
+  async create(image:Express.Multer.File,createBookDto: CreateBookDto) {
+    const result = await this.firebaseService.uploadFile(image);
+    const book = this.bookRepository.create({
+      ...createBookDto,
+      coverImg:result
+    })
+    return this.bookRepository.save(book)
   }
 
   async findAll() {

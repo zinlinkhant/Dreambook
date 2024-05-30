@@ -7,12 +7,14 @@ import { UsersModule } from '../users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { ConfigService } from '@nestjs/config';
+import { FirebaseModule } from 'src/services/firebase/firebase.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
     JwtModule.register({}),
-    UsersModule
+    UsersModule,
+    FirebaseModule
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, ConfigService],
