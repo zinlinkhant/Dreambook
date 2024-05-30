@@ -39,6 +39,9 @@ export class User {
   @Column({ nullable: true })
   age: number;
 
+  @Column({ nullable: true })
+  profileImg: string;
+
   @Column({
     type: 'enum',
     enum: Gender,
