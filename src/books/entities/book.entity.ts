@@ -24,7 +24,7 @@ export class Book {
   @Column({ type: 'text' , unique:true})
   title: string;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: 'text', nullable: false })
   coverImg: string;
 
   @Column({ type: 'text', nullable: false })

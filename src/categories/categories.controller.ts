@@ -11,7 +11,6 @@ export class CategoriesController {
   @Post()
   @UseInterceptors(FileInterceptor('icon'))
   create(
-    // @Request() req,
     @UploadedFile() image: Express.Multer.File,
     @Body() createCategoryDto: CreateCategoryDto) {
     return this.categoriesService.create(image,createCategoryDto);
