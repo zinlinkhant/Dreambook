@@ -55,7 +55,7 @@ export class Book {
   @JoinColumn({ name: 'userId' })
   user: User;
 
-  @ManyToOne(()=>Category, (category)=> category.books )
+  @ManyToOne(()=>Category, (category)=> category.books,{ onDelete: 'SET NULL' } )
   @JoinColumn({name: "categoryId"})
   category:Category;
 

@@ -28,8 +28,13 @@ export class CategoriesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto,@UploadedFile() image: Express.Multer.File) {
-    return this.categoriesService.update(+id, updateCategoryDto);
+  @UseInterceptors(FileInterceptor('image'))
+  async update(
+    @Param('id') id: string,
+    @UploadedFile() image: Express.Multer.File,
+    @Body() updateCategoryDto: UpdateCategoryDto,
+  ) {
+      return await this.categoriesService.update(id, image, updateCategoryDto);
   }
 
   @Delete(':id')

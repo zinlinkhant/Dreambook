@@ -16,7 +16,7 @@ export class Category {
     @Column()
     priority:string;
 
-    @OneToMany(() => Book, (book) => book.category)
+    @OneToMany(() => Book, (book) => book.category,{ cascade: true, onDelete: 'SET NULL' })
     books: Book[];
 
      @OneToMany(() => InterestedCategory, interestedCategory => interestedCategory.category)

@@ -27,6 +27,12 @@ export class User {
   @Expose({ groups: [GROUP_ADMIN] })
   password: string;
 
+  @Column()
+  phone:string;
+
+  @Column()
+  bio:string;
+
   @Column({ nullable: true })
   name: string;
 

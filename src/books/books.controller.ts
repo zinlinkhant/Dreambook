@@ -7,7 +7,7 @@ import { UpdateBookDto } from './dto/update-book.dto';
 export class BooksController {
   constructor(private readonly booksService: BooksService) {}
   @Post()
-  create(@Body() 
+  create(
   @UploadedFile() image: Express.Multer.File,
   createBookDto: CreateBookDto) {
     return this.booksService.create(image,createBookDto);

@@ -46,10 +46,7 @@ export class UsersService {
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
-    // email unique 
     await this.hasEmail(updateUserDto.email);
-
-    // user find
     const user = await this.findOne(id);
     console.log(user);
 
@@ -66,11 +63,5 @@ export class UsersService {
   async hasEmail(email: string) {
     const hasEmail = await this.findOneWithEmail(email);
     if (hasEmail) throw new ConflictException('Email has exist');
-  }
-
-  async remove(id: number) {
-    const user = await this.findOne(id);
-    await this.usersRepository.delete(id);
-    return user;
   }
 }
