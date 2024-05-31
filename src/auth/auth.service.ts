@@ -7,7 +7,7 @@ import { AuthDto } from './dto/auth.dto';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { UserSerializer } from '../utils/user.serializer';
+import { addDays } from 'date-fns';
 
 @Injectable()
 export class AuthService {
@@ -33,24 +33,24 @@ export class AuthService {
     const access_token = await this.accessToken(result.id,result.email)
 
     delete result.password;
-    return{...result,access_token}
+    return{
+      ...result,
+      expiredDate: this.expiredDate(),
+      access_token,
+    };
 
   }
 async signIn(
     authDto: AuthDto
   ) {
     const { email, password } = authDto;
-    // check has user with email
     const user = await this.usersService.findOneWithEmail(email);
     if (!user) throw new UnauthorizedException('Credential Error');
-    // check password
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) throw new UnauthorizedException('Credential Error');
-    // jwt token create
     const access_token = await this.accessToken(user.id, user.email);
-    // return user
-    // delete user.password;
-    return new UserSerializer({ ...user, access_token });
+    return { ...user, access_token,expiredDate:this.expiredDate };
   }
 
   async accessToken(
@@ -67,5 +67,11 @@ async signIn(
       secret: secretKey
     })
     return token
+  }
+
+  expiredDate(){
+    const today = new Date();
+    const tokenExpiredDate = addDays(today,90);
+    return tokenExpiredDate;
   }
 }
