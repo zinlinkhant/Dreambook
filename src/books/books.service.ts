@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Book } from './entities/book.entity';
 import { Repository } from 'typeorm';
 import { FirebaseService } from 'src/services/firebase/firebase.service';
-
+import { slugify } from 'src/utils/slugify';
 @Injectable()
 export class BooksService {
   constructor(
@@ -14,11 +14,13 @@ export class BooksService {
     private firebaseService: FirebaseService,
   ) {}
 
-  async create(image: Express.Multer.File, createBookDto: CreateBookDto) {
+  async create(image: Express.Multer.File, createBookDto: CreateBookDto): Promise<Book> {
     const result = await this.firebaseService.uploadFile(image);
+    const slug = slugify(createBookDto.title)
     const book = this.bookRepository.create({
       ...createBookDto,
       coverImg: result,
+      slug
     });
     return this.bookRepository.save(book);
   }

@@ -21,7 +21,7 @@ export class Book {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'text' , unique:true})
+  @Column({ type: 'text' , unique:false})
   title: string;
 
   @Column({ type: 'text', nullable: false })
@@ -30,7 +30,7 @@ export class Book {
   @Column({ type: 'text', nullable: false })
   description: string;
 
-  @Column({ type: 'text', unique: false })
+  @Column({ type: 'text',nullable:false, unique:true })
   slug: string;
 
   @Column({ type: 'int' })
