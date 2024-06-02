@@ -25,6 +25,7 @@ export class UsersController {
     return this.usersService.getLoginUserInfo(req.user);
   }
 
+   @UseGuards(JwtAuthGuard)
   @Patch(':id')
   @UseInterceptors(FileInterceptor('profileImg'))
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto,@UploadedFile() image: Express.Multer.File,) {

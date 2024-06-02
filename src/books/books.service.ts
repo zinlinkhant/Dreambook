@@ -27,12 +27,28 @@ export class BooksService {
 
   async findAll() {
     const books = await this.bookRepository.find({
+      where:{
+        status:true
+      },
       relations: {
         user: true,
         category: true,
       },
     });
     return books;
+  }
+
+  async findByUserId(userId: number): Promise<Book[]> {
+    return this.bookRepository
+      .createQueryBuilder('book')
+      .where('book.userId = :userId', { userId })
+      .getMany();
+  }
+  async findByCategoryId(categoryId: number): Promise<Book[]> {
+    return this.bookRepository
+      .createQueryBuilder('book')
+      .where('book.categoryId = :categoryId', { categoryId })
+      .getMany();
   }
 
   async findOne(id: number) {
