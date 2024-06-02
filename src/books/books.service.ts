@@ -6,6 +6,7 @@ import { Book } from './entities/book.entity';
 import { Repository } from 'typeorm';
 import { FirebaseService } from 'src/services/firebase/firebase.service';
 import { slugify } from 'src/utils/slugify';
+import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
 @Injectable()
 export class BooksService {
   constructor(
@@ -25,20 +26,15 @@ export class BooksService {
     return this.bookRepository.save(book);
   }
 
-  async findAll() {
-    const books = await this.bookRepository.find({
-      where:{
-        status:true
-      },
-      relations: {
-        user: true,
-        category: true,
-      },
-      order: {
-        createdAt: 'DESC',
-      },
-    });
-    return books;
+  async findAll(options: IPaginationOptions) {
+   const queryBuilder = this.bookRepository.createQueryBuilder('book');
+    queryBuilder
+      .where('book.status = :status', { status: true })
+      .leftJoinAndSelect('book.user', 'user')
+      .leftJoinAndSelect('book.category', 'category')
+      .orderBy('book.createdAt', 'DESC');
+
+    return paginate<Book>(queryBuilder, options);
   }
 
   async findByUserId(userId: number): Promise<Book[]> {
