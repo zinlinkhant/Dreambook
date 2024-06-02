@@ -25,7 +25,9 @@ export class CategoriesService {
     return this.categoryRepository.save(category);
   }
   async findAll() {
-    return this.categoryRepository.find();
+    return this.categoryRepository.find({
+      order:{priority:"DESC"}
+    });
   }
 
   async findOne(id: number) {

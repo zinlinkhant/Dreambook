@@ -18,7 +18,6 @@ export class BooksController {
     return this.booksService.create(image,createBookDto);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get()
   findAll() {
     return this.booksService.findAll();

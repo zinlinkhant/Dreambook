@@ -34,6 +34,9 @@ export class BooksService {
         user: true,
         category: true,
       },
+      order: {
+        createdAt: 'DESC',
+      },
     });
     return books;
   }
