@@ -37,9 +37,6 @@ export class User {
   name: string;
 
   @Column({ nullable: true })
-  age: number;
-
-  @Column({ nullable: true })
   profileImg: string;
 
   @Column({
