@@ -6,7 +6,7 @@ import { Book } from './entities/book.entity';
 import { Repository } from 'typeorm';
 import { FirebaseService } from 'src/services/firebase/firebase.service';
 import { slugify } from 'src/utils/slugify';
-import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
+import { IPaginationOptions, paginate, Pagination } from 'nestjs-typeorm-paginate';
 @Injectable()
 export class BooksService {
   constructor(
@@ -26,7 +26,7 @@ export class BooksService {
     return this.bookRepository.save(book);
   }
 
-  async findAll(options: IPaginationOptions) {
+  async findAll(options: IPaginationOptions): Promise<Pagination<Book>> {
    const queryBuilder = this.bookRepository.createQueryBuilder('book');
     queryBuilder
       .where('book.status = :status', { status: true })
@@ -81,6 +81,8 @@ export class BooksService {
       keywords: Array.isArray(updateBookDto.keywords) ? updateBookDto.keywords : book.keywords
   });
     return this.bookRepository.save(updatedBook);
+
+    
   }
 
   async remove(id: number) {

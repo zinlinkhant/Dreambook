@@ -1,26 +1,36 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateChapterProgressDto } from './dto/create-chapter-progress.dto';
 import { UpdateChapterProgressDto } from './dto/update-chapter-progress.dto';
+import { ChapterProgress } from './entities/chapter-progress.entity';
 
 @Injectable()
 export class ChapterProgressService {
-  create(createChapterProgressDto: CreateChapterProgressDto) {
-    return 'This action adds a new chapterProgress';
+  constructor(
+    @InjectRepository(ChapterProgress)
+    private readonly chapterProgressRepository: Repository<ChapterProgress>,
+  ) {}
+
+  async create(createChapterProgressDto: CreateChapterProgressDto): Promise<ChapterProgress> {
+    const chapterProgress = this.chapterProgressRepository.create(createChapterProgressDto);
+    return this.chapterProgressRepository.save(chapterProgress);
   }
 
-  findAll() {
-    return `This action returns all chapterProgress`;
+  async findAll(): Promise<ChapterProgress[]> {
+    return this.chapterProgressRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} chapterProgress`;
+  async findOne(id: number): Promise<ChapterProgress> {
+    return this.chapterProgressRepository.findOne({ where: { id } });
   }
 
-  update(id: number, updateChapterProgressDto: UpdateChapterProgressDto) {
-    return `This action updates a #${id} chapterProgress`;
+  async update(id: number, updateChapterProgressDto: UpdateChapterProgressDto): Promise<ChapterProgress> {
+    await this.chapterProgressRepository.update(id, updateChapterProgressDto);
+    return this.chapterProgressRepository.findOne({ where: { id } });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} chapterProgress`;
+  async remove(id: number): Promise<void> {
+    await this.chapterProgressRepository.delete(id);
   }
 }
