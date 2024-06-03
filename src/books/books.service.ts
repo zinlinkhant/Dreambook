@@ -7,27 +7,33 @@ import { Repository } from 'typeorm';
 import { FirebaseService } from 'src/services/firebase/firebase.service';
 import { slugify } from 'src/utils/slugify';
 import { IPaginationOptions, paginate, Pagination } from 'nestjs-typeorm-paginate';
+import { User } from '../users/entities/user.entity';
 @Injectable()
 export class BooksService {
   constructor(
     @InjectRepository(Book)
     private bookRepository: Repository<Book>,
     private firebaseService: FirebaseService,
-  ) {}
+  ) { }
 
-  async create(image: Express.Multer.File, createBookDto: CreateBookDto): Promise<Book> {
+  async create(
+    user: User,
+    image: Express.Multer.File,
+    createBookDto: CreateBookDto
+  ): Promise<Book> {
     const result = await this.firebaseService.uploadFile(image);
     const slug = slugify(createBookDto.title)
     const book = this.bookRepository.create({
       ...createBookDto,
       coverImg: result,
-      slug
+      slug,
+      user
     });
     return this.bookRepository.save(book);
   }
 
   async findAll(options: IPaginationOptions): Promise<Pagination<Book>> {
-   const queryBuilder = this.bookRepository.createQueryBuilder('book');
+    const queryBuilder = this.bookRepository.createQueryBuilder('book');
     queryBuilder
       .where('book.status = :status', { status: true })
       .leftJoinAndSelect('book.user', 'user')
@@ -63,12 +69,32 @@ export class BooksService {
     return book;
   }
 
-  async update (
+  async findOneWithUser(
+    user: User,
+    id: number
+  ) {
+    const book = await this.bookRepository.findOneOrFail({
+      where: {
+        id,
+        user: {
+          id: user.id
+        }
+      },
+      relations: {
+        user: true,
+        category: true,
+      },
+    });
+    return book;
+  }
+
+  async update(
+    user: User,
     id: number,
     image: Express.Multer.File,
     updateBookDto: UpdateBookDto,
-  ){
-    const book = await this.bookRepository.findOne({where:{id}});
+  ) {
+    const book = await this.findOneWithUser(user, id);
     let coverImg = book.coverImg;
     if (image) {
       coverImg = await this.firebaseService.uploadFile(image);
@@ -79,10 +105,10 @@ export class BooksService {
       ...updateBookDto,
       coverImg,
       keywords: Array.isArray(updateBookDto.keywords) ? updateBookDto.keywords : book.keywords
-  });
+    });
     return this.bookRepository.save(updatedBook);
 
-    
+
   }
 
   async remove(id: number) {
