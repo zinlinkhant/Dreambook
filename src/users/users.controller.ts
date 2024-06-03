@@ -1,4 +1,4 @@
-import { Controller, Get, Body, Patch, Param, UseFilters, UseGuards, Request, UseInterceptors, ClassSerializerInterceptor, SerializeOptions, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Body, Patch, UseFilters, UseGuards, Request, UseInterceptors, ClassSerializerInterceptor, SerializeOptions, UploadedFile } from '@nestjs/common';
 import { UsersService } from './users.service';
 // import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -25,10 +25,10 @@ export class UsersController {
     return this.usersService.getLoginUserInfo(req.user);
   }
 
-   @UseGuards(JwtAuthGuard)
-  @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  @Patch()
   @UseInterceptors(FileInterceptor('profileImg'))
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto,@UploadedFile() image: Express.Multer.File,) {
-    return this.usersService.update(+id, updateUserDto,image);
+  async update( @Request() req,@Body() updateUserDto: UpdateUserDto,@UploadedFile() image: Express.Multer.File,) {
+    return this.usersService.update(req.user, updateUserDto,image);
   }
 }

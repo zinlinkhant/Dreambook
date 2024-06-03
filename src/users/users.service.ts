@@ -46,9 +46,9 @@ export class UsersService {
     return user;
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto,image: Express.Multer.File,) {
-    await this.hasEmail(updateUserDto.email);
-    const user = await this.findOne(id);
+  async update(user:User, updateUserDto: UpdateUserDto,image: Express.Multer.File,) {
+    // await this.hasEmail(updateUserDto.email);
+    // const user = await this.findOne(id);
     let profileImg = user.profileImg;
     if(image){
        profileImg = await this.firebaseService.uploadFile(image)
