@@ -137,9 +137,14 @@ export class BooksService {
     return this.bookRepository.save(updatedBook);
   }
 
-  async remove(id: number) {
-    const book = await this.findOne(id);
-    await this.bookRepository.delete(id);
-    return book;
+  async deleteBook(user: User, bookId: number): Promise<void> {
+    const book = await this.findOne(bookId);
+
+    if (book.userId !== user.id) {
+      throw new UnauthorizedException('You do not own this book');
+    }
+
+    await this.bookRepository.delete(bookId);
   }
+
 }

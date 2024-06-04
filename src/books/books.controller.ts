@@ -17,6 +17,7 @@ import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { User } from 'src/users/entities/user.entity';
 
 @Controller('books')
 export class BooksController {
@@ -73,8 +74,9 @@ export class BooksController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.booksService.remove(+id);
+  @Delete(':bookId')
+  deleteBook(@Request() req, @Param('bookId') bookId: number) {
+    const user: User = req.user;
+    return this.booksService.deleteBook(user, bookId);
   }
 }

@@ -10,5 +10,6 @@ import { FirebaseModule } from 'src/services/firebase/firebase.module';
   imports:[TypeOrmModule.forFeature([Book,Chapter]),FirebaseModule],
   controllers: [BooksController],
   providers: [BooksService],
+  exports: [TypeOrmModule], 
 })
 export class BooksModule {}
