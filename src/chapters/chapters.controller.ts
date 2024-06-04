@@ -15,13 +15,17 @@ import { UpdateChapterDto } from './dto/update-chapter.dto';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { User } from 'src/users/entities/user.entity';
 
+
 @Controller('chapters')
 export class ChaptersController {
   constructor(private readonly chaptersService: ChaptersService) {}
+
+
   @UseGuards(JwtAuthGuard)
-  @Post()
-  create(@Body() createChapterDto: CreateChapterDto) {
-    return this.chaptersService.create(createChapterDto);
+  @Post(':bookId')
+  create(@Body() createChapterDto: CreateChapterDto, @Request() req,@Param('bookId') bookId: number) {
+    const user : User = req.user
+    return this.chaptersService.create(createChapterDto,user,bookId);
   }
 
 

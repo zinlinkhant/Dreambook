@@ -17,7 +17,17 @@ export class ChaptersService {
     private bookRepository: Repository<Book>,
   ) {}
 
-  async create(createChapterDto: CreateChapterDto): Promise<Chapter> {
+  async create(createChapterDto: CreateChapterDto, user:User,bookId: number): Promise<Chapter> {
+    const book = await this.bookRepository.findOne({
+      where: { id: bookId },
+    });
+    if (!book) {
+      throw new NotFoundException(`Book not found.`);
+    }
+
+    if (book.userId !== user.id) {
+      throw new UnauthorizedException('You do not own this book');
+    }
     const chapter = this.chaptersRepository.create(createChapterDto);
     return this.chaptersRepository.save(chapter);
   }
