@@ -28,8 +28,4 @@ export class UpdateBookDto {
   @IsBoolean()
   @IsNotEmpty()
   status?: boolean;
-
-  @IsInt()
-  @IsNotEmpty()
-  userId?: number;
 }

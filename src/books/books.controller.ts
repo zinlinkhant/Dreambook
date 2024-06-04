@@ -1,4 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UploadedFile, UseInterceptors, UseGuards, Query, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UploadedFile,
+  UseInterceptors,
+  UseGuards,
+  Query,
+  Request,
+} from '@nestjs/common';
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
@@ -7,7 +20,7 @@ import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 
 @Controller('books')
 export class BooksController {
-  constructor(private readonly booksService: BooksService) { }
+  constructor(private readonly booksService: BooksService) {}
 
   @UseGuards(JwtAuthGuard)
   @Post()
@@ -15,14 +28,13 @@ export class BooksController {
   create(
     @Request() req,
     @UploadedFile() image: Express.Multer.File,
-    @Body() createBookDto: CreateBookDto
+    @Body() createBookDto: CreateBookDto,
   ) {
     return this.booksService.create(req.user, image, createBookDto);
   }
 
   @Get()
-  findAll(@Query('page') page: number = 1,
-    @Query('limit') limit: number = 12,) {
+  findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 12) {
     return this.booksService.findAll({ page, limit });
   }
   @Get(':id')
@@ -30,11 +42,19 @@ export class BooksController {
     return this.booksService.findOne(+id);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('user')
+  findByUser(@Request() req) {
+    return this.booksService.findByUser(req.user);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get('user/:userId')
   findByUserId(@Param('userId') userId: number) {
     return this.booksService.findByUserId(userId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('category/:categoryId')
   findByCategoryId(@Param('categoryId') categoryId: number) {
     return this.booksService.findByCategoryId(categoryId);

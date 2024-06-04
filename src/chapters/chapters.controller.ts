@@ -25,6 +25,14 @@ export class ChaptersController {
   findAll() {
     return this.chaptersService.findAll();
   }
+
+  // @UseGuards(JwtAuthGuard)
+  // @Get('book/:bookId')
+  // findByBookId(@Request() req, @Param('bookId') bookId: number) {
+  //   const user = req.user;
+  //   return this.chaptersService.findByBookId(user, bookId);
+  // }
+
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {

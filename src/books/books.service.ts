@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,7 +10,11 @@ import { Book } from './entities/book.entity';
 import { Repository } from 'typeorm';
 import { FirebaseService } from 'src/services/firebase/firebase.service';
 import { slugify } from 'src/utils/slugify';
-import { IPaginationOptions, paginate, Pagination } from 'nestjs-typeorm-paginate';
+import {
+  IPaginationOptions,
+  paginate,
+  Pagination,
+} from 'nestjs-typeorm-paginate';
 import { User } from '../users/entities/user.entity';
 @Injectable()
 export class BooksService {
@@ -14,20 +22,20 @@ export class BooksService {
     @InjectRepository(Book)
     private bookRepository: Repository<Book>,
     private firebaseService: FirebaseService,
-  ) { }
+  ) {}
 
   async create(
     user: User,
     image: Express.Multer.File,
-    createBookDto: CreateBookDto
+    createBookDto: CreateBookDto,
   ): Promise<Book> {
     const result = await this.firebaseService.uploadFile(image);
-    const slug = slugify(createBookDto.title)
+    const slug = slugify(createBookDto.title);
     const book = this.bookRepository.create({
       ...createBookDto,
       coverImg: result,
       slug,
-      user
+      user,
     });
     return this.bookRepository.save(book);
   }
@@ -43,12 +51,26 @@ export class BooksService {
     return paginate<Book>(queryBuilder, options);
   }
 
-  async findByUserId(userId: number): Promise<Book[]> {
+  async findByUser(user: User): Promise<Book[]> {
+    const userId = user.id;
     return this.bookRepository
       .createQueryBuilder('book')
       .where('book.userId = :userId', { userId })
       .getMany();
   }
+  
+  async findByUserId(userId: number): Promise<Book[]> {
+    const books = await this.bookRepository.find({
+      where: { userId, status:true },
+    });
+
+    if (!books.length) {
+      throw new NotFoundException(`No books found for user with id ${userId}`);
+    }
+
+    return books;
+  }
+
   async findByCategoryId(categoryId: number): Promise<Book[]> {
     return this.bookRepository
       .createQueryBuilder('book')
@@ -69,16 +91,13 @@ export class BooksService {
     return book;
   }
 
-  async findOneWithUser(
-    user: User,
-    id: number
-  ) {
-    const book = await this.bookRepository.findOneOrFail({
+  async findOneWithUser(user: User, id: number) {
+    const book = await this.bookRepository.findOne({
       where: {
         id,
         user: {
-          id: user.id
-        }
+          id: user.id,
+        },
       },
       relations: {
         user: true,
@@ -95,20 +114,27 @@ export class BooksService {
     updateBookDto: UpdateBookDto,
   ) {
     const book = await this.findOneWithUser(user, id);
+    if (!book) {
+      throw new NotFoundException(`Book not found in this user`);
+    }
+
+    if (book.userId !== user.id) {
+      throw new UnauthorizedException('You can only update your own books.');
+    }
     let coverImg = book.coverImg;
     if (image) {
       coverImg = await this.firebaseService.uploadFile(image);
-      this.firebaseService.deleteFile(book.coverImg)
+      this.firebaseService.deleteFile(book.coverImg);
     }
     const updatedBook = this.bookRepository.create({
       ...book,
       ...updateBookDto,
       coverImg,
-      keywords: Array.isArray(updateBookDto.keywords) ? updateBookDto.keywords : book.keywords
+      keywords: Array.isArray(updateBookDto.keywords)
+        ? updateBookDto.keywords
+        : book.keywords,
     });
     return this.bookRepository.save(updatedBook);
-
-
   }
 
   async remove(id: number) {

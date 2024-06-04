@@ -5,6 +5,7 @@ import { CreateChapterDto } from './dto/create-chapter.dto';
 import { UpdateChapterDto } from './dto/update-chapter.dto';
 import { Chapter } from './entities/chapter.entity';
 
+
 @Injectable()
 export class ChaptersService {
   constructor(
@@ -17,6 +18,23 @@ export class ChaptersService {
     return this.chaptersRepository.save(chapter);
   }
 
+// async findByBookId(user: User, bookId: number): Promise<Chapter[]> {
+//     const book = await this.bookRepository.findOne({
+//       where: { id: bookId },
+//     });
+
+//     if (!book) {
+//       throw new NotFoundException(`Book with id ${bookId} not found.`);
+//     }
+
+//     if (book.userId === user.id) {
+//       // If the user owns the book, return all chapters
+//       return this.chaptersRepository.find({ where: { bookId } });
+//     } else {
+//       // If the user does not own the book, return only chapters with status: true
+//       return this.chaptersRepository.find({ where: { bookId, status: true } });
+//     }
+//   }
   findAll(): Promise<Chapter[]> {
     return this.chaptersRepository.find();
   }
