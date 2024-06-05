@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateFavouriteDto } from './dto/create-favourite.dto';
@@ -33,14 +33,12 @@ export class FavouriteService {
   }
 
     async findAllByBookId(bookId: number,user:User): Promise<Favourite[]> {
-       const book = this.booksRepository.findOne({where:{id:bookId}});
+       const book = await this.booksRepository.findOne({where:{id:bookId}});
     if (!book) {
-      throw new NotFoundException(`Book not found.`);
+        throw new NotFoundException(`Book not found`);
     }
-
-    const existingFavourite = await this.favouritesRepository.findOne({ where: { userId: user.id, bookId } });
-    if (existingFavourite) {
-      throw new ConflictException(`Book is already in your favourites.`);
+    if (book.userId !== user.id) {
+        throw new ForbiddenException(`You do not have permission to access favourites for this book`);
     }
     return this.favouritesRepository.find({ where: { bookId } });
   }

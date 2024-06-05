@@ -29,6 +29,7 @@ export class ChaptersController {
   }
 
 
+
   @UseGuards(JwtAuthGuard)
   @Get('book/:bookId')
   findByBookId(@Request() req, @Param('bookId') bookId: number) {
