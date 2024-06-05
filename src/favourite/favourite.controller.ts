@@ -1,34 +1,38 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Post, Body,Request, UseGuards, Get, Param, Delete } from '@nestjs/common';
 import { FavouriteService } from './favourite.service';
 import { CreateFavouriteDto } from './dto/create-favourite.dto';
-import { UpdateFavouriteDto } from './dto/update-favourite.dto';
+import { User } from 'src/users/entities/user.entity';
+import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 
-@Controller('favourite')
+@Controller('favourites')
 export class FavouriteController {
   constructor(private readonly favouriteService: FavouriteService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() createFavouriteDto: CreateFavouriteDto) {
-    return this.favouriteService.create(createFavouriteDto);
+  create(@Body() createFavouriteDto: CreateFavouriteDto, @Request() req) {
+    const user: User = req.user;
+    return this.favouriteService.create(createFavouriteDto, user);
   }
 
-  @Get()
-  findAll() {
-    return this.favouriteService.findAll();
+  @UseGuards(JwtAuthGuard)
+  @Get('user')
+  findAllByUserId(@Request() req) {
+    const user:User = req.user
+    return this.favouriteService.findAllByUserId(user)
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.favouriteService.findOne(+id);
+
+  @Get('books/:bookId')
+  findAllByBookId(@Param('bookId') bookId: number,@Request() req) {
+    const user:User = req.user
+    return this.favouriteService.findAllByBookId(bookId,user);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateFavouriteDto: UpdateFavouriteDto) {
-    return this.favouriteService.update(+id, updateFavouriteDto);
-  }
-
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.favouriteService.remove(+id);
+  remove(@Param('id') id: string, @Request() req) {
+    const user: User = req.user;
+    return this.favouriteService.deleteById(+id, user);
   }
 }
