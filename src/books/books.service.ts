@@ -51,20 +51,30 @@ export class BooksService {
     return paginate<Book>(queryBuilder, options);
   }
 
-  async findByUser(user: User): Promise<Book[]> {
+  async findByUser(user: User, options: IPaginationOptions): Promise<Pagination<Book>> {
     const userId = user.id;
-    return this.bookRepository
-      .createQueryBuilder('book')
+    const queryBuilder = this.bookRepository.createQueryBuilder('book');
+    queryBuilder
       .where('book.userId = :userId', { userId })
-      .getMany();
+      .leftJoinAndSelect('book.user', 'user')
+      .leftJoinAndSelect('book.category', 'category')
+      .orderBy('book.createdAt', 'DESC');
+
+    return paginate<Book>(queryBuilder, options);
   }
   
-  async findByUserId(userId: number): Promise<Book[]> {
-    const books = await this.bookRepository.find({
-      where: { userId, status:true },
-    });
+  async findByUserId(userId: number, options: IPaginationOptions): Promise<Pagination<Book>> {
+    const queryBuilder = this.bookRepository.createQueryBuilder('book');
+    queryBuilder
+      .where('book.userId = :userId', { userId })
+      .andWhere('book.status = :status', { status: true })
+      .leftJoinAndSelect('book.user', 'user')
+      .leftJoinAndSelect('book.category', 'category')
+      .orderBy('book.createdAt', 'DESC');
 
-    if (!books.length) {
+    const books = await paginate<Book>(queryBuilder, options);
+
+    if (!books.items.length) {
       throw new NotFoundException(`No books found for user with id ${userId}`);
     }
 

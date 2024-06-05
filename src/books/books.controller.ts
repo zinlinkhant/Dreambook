@@ -45,14 +45,14 @@ export class BooksController {
 
   @UseGuards(JwtAuthGuard)
   @Get('user')
-  findByUser(@Request() req) {
-    return this.booksService.findByUser(req.user);
+  findByUser(@Request() req,@Query('page') page: number = 1, @Query('limit') limit: number = 12) {
+    return this.booksService.findByUser(req.user,{ page, limit });
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('user/:userId')
-  findByUserId(@Param('userId') userId: number) {
-    return this.booksService.findByUserId(userId);
+  findByUserId(@Param('userId') userId: number,@Query('page') page: number = 1, @Query('limit') limit: number = 12) {
+    return this.booksService.findByUserId(userId,{ page, limit });
   }
 
   @UseGuards(JwtAuthGuard)
