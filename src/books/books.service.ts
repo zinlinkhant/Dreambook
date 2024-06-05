@@ -40,10 +40,27 @@ export class BooksService {
     return this.bookRepository.save(book);
   }
 
-  async findAll(options: IPaginationOptions): Promise<Pagination<Book>> {
+  // async findAll(options: IPaginationOptions): Promise<Pagination<Book>> {
+  //   const queryBuilder = this.bookRepository.createQueryBuilder('book');
+  //   queryBuilder
+  //     .where('book.status = :status', { status: true })
+  //     .leftJoinAndSelect('book.user', 'user')
+  //     .leftJoinAndSelect('book.category', 'category')
+  //     .orderBy('book.createdAt', 'DESC');
+
+  //   return paginate<Book>(queryBuilder, options);
+  // }
+
+  async findAll(options: IPaginationOptions, searchQuery?: string, categoryId?: number): Promise<Pagination<Book>> {
     const queryBuilder = this.bookRepository.createQueryBuilder('book');
+    if (searchQuery) {
+      queryBuilder.andWhere('(book.title LIKE :searchQuery OR book.description LIKE :searchQuery)', { searchQuery: `%${searchQuery}%` });
+    }
+    if (categoryId) {
+      queryBuilder.andWhere('book.categoryId = :categoryId', { categoryId });
+    }
     queryBuilder
-      .where('book.status = :status', { status: true })
+      .andWhere('book.status = :status', { status: true })
       .leftJoinAndSelect('book.user', 'user')
       .leftJoinAndSelect('book.category', 'category')
       .orderBy('book.createdAt', 'DESC');

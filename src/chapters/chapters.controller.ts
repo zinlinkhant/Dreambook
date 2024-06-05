@@ -29,11 +29,6 @@ export class ChaptersController {
   }
 
 
-  @Get()
-  findAll() {
-    return this.chaptersService.findAll();
-  }
-
   @UseGuards(JwtAuthGuard)
   @Get('book/:bookId')
   findByBookId(@Request() req, @Param('bookId') bookId: number) {
