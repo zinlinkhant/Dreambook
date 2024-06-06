@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Injectable, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateInterestedCategoryDto } from './dto/create-interested-category.dto';
@@ -36,28 +36,23 @@ export class InterestedCategoryService {
     return this.interestedCategoryRepository.find({where:{userId:user.id}});
   }
   async update(
-    // id: number,
-    // updateInterestedCategoryDto: UpdateInterestedCategoryDto,
-    // user: User
+    id: number,
+    updateInterestedCategoryDto: UpdateInterestedCategoryDto,
+    user: User
   ){
-    // if (updateInterestedCategoryDto.userId !== user.id) {
-    //   throw new UnauthorizedException('User not authorized');
-    // }
-
-    // const interestedCategory = await this.interestedCategoryRepository.findOne({ where: { id } });
-    // const newCategory = await this.categoryRepository.findOne({ where: { id: updateInterestedCategoryDto.categoryId } });
-    // if (!newCategory) {
-    //   throw new NotFoundException(`Category with ID ${updateInterestedCategoryDto.categoryId} not found`);
-    // }
-
-    // // Update the categoryId
-    // interestedCategory.categoryId = updateInterestedCategoryDto.categoryId;
-
-    // // Save the updated InterestedCategory entity
-    // return this.interestedCategoryRepository.save(interestedCategory);
+    const intCat = await this.interestedCategoryRepository.findOne({where:{id}})
+    if (intCat.userId !== user.id) {
+      throw new UnauthorizedException('User not authorized');
+    }
+    Object.assign(intCat,updateInterestedCategoryDto)
+    return this.interestedCategoryRepository.save(intCat)
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: number,user:User): Promise<void> {
+    const intCat = await this.interestedCategoryRepository.findOne({where:{id}})
+ if (intCat.userId !== user.id) {
+      throw new UnauthorizedException('User not authorized');
+    }
     await this.interestedCategoryRepository.delete(id);
   }
 }

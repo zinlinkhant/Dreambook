@@ -25,11 +25,12 @@ export class InterestedCategoryController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateInterestedCategoryDto: UpdateInterestedCategoryDto,@Request() req) {
     const user:User = req.user
-    // return this.interestedCategoryService.update(+id, updateInterestedCategoryDto,user);
+    return this.interestedCategoryService.update(+id, updateInterestedCategoryDto,user);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.interestedCategoryService.remove(+id);
+  remove(@Param('id') id: string,@Request() req) {
+    const user:User = req.user
+    return this.interestedCategoryService.remove(+id,user);
   }
 }
