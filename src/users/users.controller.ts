@@ -9,11 +9,12 @@ import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller({ path: 'users', version: '1' })
 @UseFilters(TypeormExceptionFilter)
+  @UseGuards(JwtAuthGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
 
-  @UseGuards(JwtAuthGuard)
+
   @UseInterceptors(ClassSerializerInterceptor)
   @SerializeOptions({
     groups: [GROUP_USER]
@@ -25,7 +26,7 @@ export class UsersController {
     return this.usersService.getLoginUserInfo(req.user);
   }
 
-  @UseGuards(JwtAuthGuard)
+
   @Patch()
   @UseInterceptors(FileInterceptor('profileImg'))
   async update( @Request() req,@Body() updateUserDto: UpdateUserDto,@UploadedFile() image: Express.Multer.File,) {

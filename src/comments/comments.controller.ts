@@ -1,34 +1,35 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { CommentsService } from './comments.service';
+import { Controller, Get, Post, Param, Body, Patch, Delete, Request, UseGuards } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
+import { User } from '../users/entities/user.entity';
+import { CommentsService } from './comments.service';
 
 @Controller('comments')
+@UseGuards(JwtAuthGuard)
 export class CommentsController {
-  constructor(private readonly commentsService: CommentsService) {}
+  constructor(private readonly commentService: CommentsService) {}
 
   @Post()
-  create(@Body() createCommentDto: CreateCommentDto) {
-    return this.commentsService.create(createCommentDto);
+  async create(@Body() createCommentDto: CreateCommentDto, @Request() req) {
+    const user: User = req.user;
+    return this.commentService.create(createCommentDto, user);
   }
 
-  @Get()
-  findAll() {
-    return this.commentsService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.commentsService.findOne(+id);
+  @Get('book/:bookId')
+  async findAllByBookId(@Param('bookId') bookId: number) {
+    return this.commentService.findAllByBookId(bookId);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCommentDto: UpdateCommentDto) {
-    return this.commentsService.update(+id, updateCommentDto);
+  async update(@Param('id') id: number, @Body() updateCommentDto: UpdateCommentDto, @Request() req) {
+    const user: User = req.user;
+    return this.commentService.update(id, updateCommentDto, user);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.commentsService.remove(+id);
+  async remove(@Param('id') id: number, @Request() req) {
+    const user: User = req.user;
+    return this.commentService.remove(id, user);
   }
 }

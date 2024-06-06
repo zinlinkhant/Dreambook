@@ -1,1 +1,6 @@
-export class CreateCommentDto {}
+export class CreateCommentDto {
+  text: string;
+  bookId: number;
+}
+
+
