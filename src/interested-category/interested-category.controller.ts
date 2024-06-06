@@ -1,30 +1,31 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Request, UseGuards } from '@nestjs/common';
 import { InterestedCategoryService } from './interested-category.service';
 import { CreateInterestedCategoryDto } from './dto/create-interested-category.dto';
 import { UpdateInterestedCategoryDto } from './dto/update-interested-category.dto';
+import { User } from 'src/users/entities/user.entity';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 
 @Controller('interested-category')
+@UseGuards(JwtAuthGuard)
 export class InterestedCategoryController {
   constructor(private readonly interestedCategoryService: InterestedCategoryService) {}
-
+  
   @Post()
-  create(@Body() createInterestedCategoryDto: CreateInterestedCategoryDto) {
-    return this.interestedCategoryService.create(createInterestedCategoryDto);
+  create(@Body() createInterestedCategoryDto: CreateInterestedCategoryDto,@Request() req) {
+    const user:User = req.user
+    return this.interestedCategoryService.create(createInterestedCategoryDto,user);
   }
 
   @Get()
-  findAll() {
-    return this.interestedCategoryService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.interestedCategoryService.findOne(+id);
+  findAllByUserId(@Request() req) {
+    const user:User = req.user
+    return this.interestedCategoryService.findAllByUserId(user);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateInterestedCategoryDto: UpdateInterestedCategoryDto) {
-    return this.interestedCategoryService.update(+id, updateInterestedCategoryDto);
+  update(@Param('id') id: string, @Body() updateInterestedCategoryDto: UpdateInterestedCategoryDto,@Request() req) {
+    const user:User = req.user
+    // return this.interestedCategoryService.update(+id, updateInterestedCategoryDto,user);
   }
 
   @Delete(':id')
