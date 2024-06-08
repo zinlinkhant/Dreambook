@@ -44,7 +44,7 @@ export class FavouriteService {
   }
 
    async findAllByUserId(user: User): Promise<Favourite[]> {
-    return this.favouritesRepository.find({ where: { user} });
+    return this.favouritesRepository.find({ where: { userId:user.id} });
   }
 
 
