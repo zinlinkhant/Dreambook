@@ -19,7 +19,7 @@ export class FavouriteService {
   async create(createFavouriteDto: CreateFavouriteDto, user: User): Promise<Favourite> {
     const { bookId } = createFavouriteDto;
 
-    const book = this.booksRepository.findOne({where:{id:bookId}});
+    const book = await  this.booksRepository.findOne({where:{id:bookId}});
     if (!book) {
       throw new NotFoundException(`Book not found.`);
     }
@@ -29,6 +29,8 @@ export class FavouriteService {
       throw new ConflictException(`Book is already in your favourites.`);
     }
     const favourite = this.favouritesRepository.create({ ...createFavouriteDto,user});
+    book.favouriteCount += 1;
+    await this.booksRepository.save(book);
     return this.favouritesRepository.save(favourite);
   }
 
@@ -56,6 +58,9 @@ export class FavouriteService {
     if (favourite.userId !== user.id) {
       throw new UnauthorizedException(`You are not authorized to delete this favourite.`);
     }
+     const book = await  this.booksRepository.findOne({where:{id:favourite.bookId}});
+    book.favouriteCount -= 1;
+    await this.booksRepository.save(book);
     await this.favouritesRepository.remove(favourite);
   }
 

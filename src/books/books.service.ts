@@ -173,5 +173,12 @@ export class BooksService {
 
     await this.bookRepository.delete(bookId);
   }
+  async favouriteBook(): Promise<Book[]>{
+     return this.bookRepository
+      .createQueryBuilder('book')
+      .orderBy('book.favouriteCount', 'DESC')
+      .limit(10)
+      .getMany();
+  }
 
 }

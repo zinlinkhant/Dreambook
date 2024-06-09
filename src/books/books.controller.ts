@@ -79,4 +79,14 @@ export class BooksController {
     const user: User = req.user;
     return this.booksService.deleteBook(user, bookId);
   }
+
+  // @Get('favourites')
+  // favouriteBook(){
+  //   return this.booksService.favouriteBook()
+  // }
+
+   @Get('favourite/top-10')
+  async favouriteBook() {
+    return this.booksService.favouriteBook();
+  }
 }
