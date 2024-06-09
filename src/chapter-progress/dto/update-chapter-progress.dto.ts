@@ -1,4 +1,16 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateChapterProgressDto } from './create-chapter-progress.dto';
+import { IsOptional, IsNotEmpty, IsNumber } from 'class-validator';
 
-export class UpdateChapterProgressDto extends PartialType(CreateChapterProgressDto) {}
+export class UpdateChapterProgressDto {
+    @IsOptional()
+  @IsNumber()
+  bookId?: number;
+
+  @IsOptional()
+  @IsNumber()
+  userId?: number;
+
+  @IsOptional()
+  @IsNotEmpty()
+  @IsNumber()
+  chapterProgress?: number;
+}

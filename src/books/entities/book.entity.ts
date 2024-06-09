@@ -45,6 +45,9 @@ export class Book {
   @Column({ type: 'int' })
   userId: number;
 
+  @Column({ default: 0 })
+  favouriteCount: number;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
