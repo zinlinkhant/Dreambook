@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -16,12 +17,15 @@ import {
   Pagination,
 } from 'nestjs-typeorm-paginate';
 import { User } from '../users/entities/user.entity';
+import { InterestedCategory } from '../interested-category/entities/interested-category.entity';
 @Injectable()
 export class BooksService {
   constructor(
     @InjectRepository(Book)
     private bookRepository: Repository<Book>,
     private firebaseService: FirebaseService,
+    @InjectRepository(InterestedCategory)
+    private readonly interestedCategoryRepository: Repository<InterestedCategory>
   ) {}
 
   async create(
@@ -178,6 +182,28 @@ export class BooksService {
       .createQueryBuilder('book')
       .orderBy('book.favouriteCount', 'DESC')
       .limit(10)
+      .getMany();
+  }
+    async findRecommendedBooks(user: User): Promise<Book[]> {
+    const interestedCategories = await this.interestedCategoryRepository.find({
+      where: { userId: user.id },
+      relations: ['category'],
+    });
+
+    const categoryIds = interestedCategories.map(ic => ic.category.id);
+
+    // Validate category IDs
+    if (categoryIds.some(id => isNaN(id))) {
+      throw new BadRequestException('Invalid category ID(s) found');
+    }
+
+    if (categoryIds.length === 0) {
+      return [];
+    }
+
+    return this.bookRepository
+      .createQueryBuilder('book')
+      .where('book.categoryId IN (:...categoryIds)', { categoryIds })
       .getMany();
   }
 

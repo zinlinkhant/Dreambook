@@ -18,10 +18,14 @@ import { UpdateBookDto } from './dto/update-book.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { User } from 'src/users/entities/user.entity';
+import { InterestedCategory } from 'src/interested-category/entities/interested-category.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Controller('books')
 export class BooksController {
-  constructor(private readonly booksService: BooksService) {}
+  constructor(private readonly booksService: BooksService,@InjectRepository(InterestedCategory)
+    private readonly interestedCategoryRepository: Repository<InterestedCategory>,) {}
 
   @UseGuards(JwtAuthGuard)
   @Post()
@@ -88,5 +92,12 @@ export class BooksController {
    @Get('favourite/top-10')
   async favouriteBook() {
     return this.booksService.favouriteBook();
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('recommended')
+  async findRecommendedBooks(@Request() req) {
+    const user: User = req.user;
+    return this.booksService.findRecommendedBooks(user);
   }
 }

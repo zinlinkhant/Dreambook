@@ -13,24 +13,32 @@ export class ChapterProgressService {
     private readonly chapterProgressRepository: Repository<ChapterProgress>,
   ) {}
 
-  
-    async findAllByUserIdInBook(bookId: string, user: User): Promise<ChapterProgress[]> {
-      return this.chapterProgressRepository.find({
-        where: {
-          bookId: +bookId,
-          userId: user.id,
-        },
-      });
-    }
-    async create(createChapterProgressDto: CreateChapterProgressDto, user: User): Promise<ChapterProgress> {
+  async findAllByUserIdInBook(
+    bookId: string,
+    user: User,
+  ): Promise<ChapterProgress[]> {
+    return this.chapterProgressRepository.find({
+      where: {
+        bookId: +bookId,
+        userId: user.id,
+      },
+    });
+  }
+
+  async create(
+    createChapterProgressDto: CreateChapterProgressDto,
+    user: User,
+  ): Promise<ChapterProgress> {
     const { bookId, chapterProgress } = createChapterProgressDto;
-    const existingProgress = await this.chapterProgressRepository.find({where:{
-      userId:user.id,
-      bookId:bookId
-    }})
-    if (existingProgress === null) {
-      const updateDto: UpdateChapterProgressDto = { chapterProgress };  
-      return this.update( updateDto, user,bookId);
+    const existingProgress = await this.chapterProgressRepository.find({
+      where: {
+        userId: user.id,
+        bookId: bookId,
+      },
+    });
+    if (existingProgress !== null) {
+      const updateDto: UpdateChapterProgressDto = { chapterProgress };
+      return this.update(updateDto, user, bookId);
     }
     const chapterProgressEntity = this.chapterProgressRepository.create({
       bookId,
@@ -41,7 +49,11 @@ export class ChapterProgressService {
     return this.chapterProgressRepository.save(chapterProgressEntity);
   }
 
-  async update(updateChapterProgressDto: UpdateChapterProgressDto, user: User,bookId:number): Promise<ChapterProgress> {
+  async update(
+    updateChapterProgressDto: UpdateChapterProgressDto,
+    user: User,
+    bookId: number,
+  ): Promise<ChapterProgress> {
     const chapterProgress = await this.chapterProgressRepository.findOne({
       where: {
         bookId,
@@ -50,11 +62,12 @@ export class ChapterProgressService {
     });
 
     if (!chapterProgress) {
-      throw new NotFoundException(`ChapterProgress with bookId ${bookId} not found or you do not own this progress`);
+      throw new NotFoundException(
+        `ChapterProgress with bookId ${bookId} not found or you do not own this progress`,
+      );
     }
 
     Object.assign(chapterProgress, updateChapterProgressDto);
     return this.chapterProgressRepository.save(chapterProgress);
   }
 }
-
