@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -18,6 +17,7 @@ import {
 } from 'nestjs-typeorm-paginate';
 import { User } from '../users/entities/user.entity';
 import { InterestedCategory } from '../interested-category/entities/interested-category.entity';
+import { Favourite } from 'src/favourite/entities/favourite.entity';
 @Injectable()
 export class BooksService {
   constructor(
@@ -25,7 +25,9 @@ export class BooksService {
     private bookRepository: Repository<Book>,
     private firebaseService: FirebaseService,
     @InjectRepository(InterestedCategory)
-    private readonly interestedCategoryRepository: Repository<InterestedCategory>
+    private readonly interestedCategoryRepository: Repository<InterestedCategory>,
+    @InjectRepository(Favourite)
+    private readonly favouriteRepository: Repository<Favourite>,
   ) {}
 
   async create(
@@ -44,35 +46,56 @@ export class BooksService {
     return this.bookRepository.save(book);
   }
 
-  // async findAll(options: IPaginationOptions): Promise<Pagination<Book>> {
+  // async findAll(
+  //   options: IPaginationOptions,
+  //   searchQuery?: string,
+  //   categoryId?: number,
+  // ): Promise<Pagination<Book>> {
   //   const queryBuilder = this.bookRepository.createQueryBuilder('book');
+  //   if (searchQuery) {
+  //     queryBuilder.andWhere(
+  //       '(book.title LIKE :searchQuery OR book.description LIKE :searchQuery)',
+  //       { searchQuery: `%${searchQuery}%` },
+  //     );
+  //   }
   //   queryBuilder
-  //     .where('book.status = :status', { status: true })
+  //     .andWhere('book.status = :status', { status: true })
   //     .leftJoinAndSelect('book.user', 'user')
   //     .leftJoinAndSelect('book.category', 'category')
   //     .orderBy('book.createdAt', 'DESC');
 
   //   return paginate<Book>(queryBuilder, options);
   // }
-
-  async findAll(options: IPaginationOptions, searchQuery?: string, categoryId?: number): Promise<Pagination<Book>> {
+  async findAll(
+    options: IPaginationOptions,
+    userId: number,
+  ): Promise<Pagination<Book>> {
     const queryBuilder = this.bookRepository.createQueryBuilder('book');
-    if (searchQuery) {
-      queryBuilder.andWhere('(book.title LIKE :searchQuery OR book.description LIKE :searchQuery)', { searchQuery: `%${searchQuery}%` });
-    }
-    if (categoryId) {
-      queryBuilder.andWhere('book.categoryId = :categoryId', { categoryId });
-    }
     queryBuilder
       .andWhere('book.status = :status', { status: true })
       .leftJoinAndSelect('book.user', 'user')
       .leftJoinAndSelect('book.category', 'category')
       .orderBy('book.createdAt', 'DESC');
 
-    return paginate<Book>(queryBuilder, options);
+    const paginatedBooks = await paginate<Book>(queryBuilder, options);
+    const userFavorites = await this.favouriteRepository.find({
+      where: { userId },
+      select: ['bookId'],
+    });
+
+    const favoriteBookIds = new Set(userFavorites.map(fav => fav.bookId));
+    const booksWithFavorites = paginatedBooks.items.map(book => ({
+      ...book,
+      isFavorited: favoriteBookIds.has(book.id),
+    }));
+    return new Pagination<Book>(booksWithFavorites, paginatedBooks.meta, paginatedBooks.links);
   }
 
-  async findByUser(user: User, options: IPaginationOptions): Promise<Pagination<Book>> {
+
+  async findByUser(
+    user: User,
+    options: IPaginationOptions,
+  ): Promise<Pagination<Book>> {
     const userId = user.id;
     const queryBuilder = this.bookRepository.createQueryBuilder('book');
     queryBuilder
@@ -83,8 +106,11 @@ export class BooksService {
 
     return paginate<Book>(queryBuilder, options);
   }
-  
-  async findByUserId(userId: number, options: IPaginationOptions): Promise<Pagination<Book>> {
+
+  async findByUserId(
+    userId: number,
+    options: IPaginationOptions,
+  ): Promise<Pagination<Book>> {
     const queryBuilder = this.bookRepository.createQueryBuilder('book');
     queryBuilder
       .where('book.userId = :userId', { userId })
@@ -93,13 +119,18 @@ export class BooksService {
       .leftJoinAndSelect('book.category', 'category')
       .orderBy('book.createdAt', 'DESC');
 
-    const books = await paginate<Book>(queryBuilder, options);
+        const paginatedBooks = await paginate<Book>(queryBuilder, options);
+    const userFavorites = await this.favouriteRepository.find({
+      where: { userId },
+      select: ['bookId'],
+    });
 
-    if (!books.items.length) {
-      throw new NotFoundException(`No books found for user with id ${userId}`);
-    }
-
-    return books;
+    const favoriteBookIds = new Set(userFavorites.map(fav => fav.bookId));
+    const booksWithFavorites = paginatedBooks.items.map(book => ({
+      ...book,
+      isFavorited: favoriteBookIds.has(book.id),
+    }));
+    return new Pagination<Book>(booksWithFavorites, paginatedBooks.meta, paginatedBooks.links);
   }
 
   async findByCategoryId(categoryId: number): Promise<Book[]> {
@@ -107,6 +138,7 @@ export class BooksService {
       .createQueryBuilder('book')
       .where('book.categoryId = :categoryId', { categoryId })
       .getMany();
+      
   }
 
   async findOne(id: number) {
@@ -177,34 +209,54 @@ export class BooksService {
 
     await this.bookRepository.delete(bookId);
   }
-  async favouriteBook(): Promise<Book[]>{
-     return this.bookRepository
+  async favouriteBook(): Promise<Book[]> {
+    return this.bookRepository
       .createQueryBuilder('book')
       .orderBy('book.favouriteCount', 'DESC')
       .limit(10)
       .getMany();
   }
-    async findRecommendedBooks(user: User): Promise<Book[]> {
+
+  async findRecommendedBooks(user: User): Promise<Book[]> {
+    const userId = user.id
     const interestedCategories = await this.interestedCategoryRepository.find({
-      where: { userId: user.id },
+      where: { userId },
       relations: ['category'],
     });
 
-    const categoryIds = interestedCategories.map(ic => ic.category.id);
-
-    // Validate category IDs
-    if (categoryIds.some(id => isNaN(id))) {
-      throw new BadRequestException('Invalid category ID(s) found');
-    }
+    const categoryIds = interestedCategories.map(ic => ic.categoryId);
 
     if (categoryIds.length === 0) {
       return [];
     }
 
+    // Fetch books that belong to the user's interested categories
     return this.bookRepository
       .createQueryBuilder('book')
+      .innerJoinAndSelect('book.category', 'category')
+      .innerJoinAndSelect('book.user', 'user')
       .where('book.categoryId IN (:...categoryIds)', { categoryIds })
       .getMany();
   }
 
+  async searchBooks(title?: string, author?: string): Promise<Book[]> {
+
+    if (title) {
+      return this.bookRepository
+      .createQueryBuilder('book')
+      .innerJoinAndSelect('book.user', 'user')
+      .innerJoinAndSelect('book.category', 'category')
+      .where('book.title ILIKE :title', { title: `%${title}%` })
+      .getMany();
+    }
+
+    if (author) {
+      return this.bookRepository
+      .createQueryBuilder('book')
+      .innerJoinAndSelect('book.user', 'user')
+      .innerJoinAndSelect('book.category', 'category')
+      .where('user.name ILIKE :name', { name: `%${author}%` })
+      .getMany();
+    }
+  }
 }
