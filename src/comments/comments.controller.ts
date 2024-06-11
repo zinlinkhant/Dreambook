@@ -1,11 +1,16 @@
-import { Controller, Get, Post, Param, Body, Patch, Delete, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, Patch, Delete, Request, UseGuards, UseInterceptors, ClassSerializerInterceptor, SerializeOptions } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 import { User } from '../users/entities/user.entity';
 import { CommentsService } from './comments.service';
+import { GROUP_USER } from 'src/utils/group.sealizer';
 
 @Controller('comments')
+ @UseInterceptors(ClassSerializerInterceptor)
+@SerializeOptions({
+  groups: [GROUP_USER],
+})
 @UseGuards(JwtAuthGuard)
 export class CommentsController {
   constructor(private readonly commentService: CommentsService) {}

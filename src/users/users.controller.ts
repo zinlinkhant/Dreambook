@@ -10,6 +10,10 @@ import { FileInterceptor } from '@nestjs/platform-express';
 @Controller({ path: 'users', version: '1' })
 @UseFilters(TypeormExceptionFilter)
   @UseGuards(JwtAuthGuard)
+  @UseInterceptors(ClassSerializerInterceptor)
+@SerializeOptions({
+  groups: [GROUP_USER],
+})
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 

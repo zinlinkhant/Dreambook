@@ -22,6 +22,8 @@ import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { User } from 'src/users/entities/user.entity';
 import { GROUP_USER } from 'src/utils/group.sealizer';
 import { OptionalJwtAuthGuard } from 'src/auth/guard/jwt-optional.guard';
+import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
+import { Book } from './entities/book.entity';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @SerializeOptions({
@@ -31,28 +33,38 @@ import { OptionalJwtAuthGuard } from 'src/auth/guard/jwt-optional.guard';
 export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
-
+@UseGuards(JwtAuthGuard)
   @Get('search')
   async searchBooks(
+    @Request() req,
+    @Query('page') page: number=1,
+    @Query('limit') limit: number=12,
     @Query('title') title?: string,
     @Query('author') author?: string,
-  ) {
-    return this.booksService.searchBooks(title, author);
+  ){
+    const options: IPaginationOptions= {
+      page: page || 1,
+      limit: limit || 10,
+    };
+    const userId = req.user.id;
+    return this.booksService.searchBooks(userId, options, title, author);
   }
 
-
-  @Get('users/favourite')
-  async favouriteBook() {
-    return this.booksService.favouriteBook();
+@UseGuards(JwtAuthGuard)
+  @Get('popular/popular')
+  async favouriteBook(@Request() req) {
+    const userId = req.user.id
+    return this.booksService.favouriteBook(userId);
   }
 
 
 
   @UseGuards(JwtAuthGuard)
-  @Get('users/recommended')
-  async findRecommendedBooks(@Request() req) {
-    const user: User = req.user;
-    return this.booksService.findRecommendedBooks(user);
+  @Get('recommended/recommended')
+  async findRecommendedBooks(@Request() req,@Query('page') page: number = 1,
+    @Query('limit') limit: number = 12) {
+    const userId = req.user.id;
+    return this.booksService.findRecommendedBooks(userId,{page, limit });
   }
   
   
@@ -113,8 +125,27 @@ export class BooksController {
 
   @UseGuards(JwtAuthGuard)
   @Get('category/:categoryId')
-  findByCategoryId(@Param('categoryId') categoryId: number) {
-    return this.booksService.findByCategoryId(categoryId);
+  findByCategoryId(@Param('categoryId') categoryId: number,@Query('page') page: number = 1,
+    @Query('limit') limit: number = 12,@Request() req) {
+      const userId = req.user.id
+    return this.booksService.findByCategoryId(categoryId,{ page, limit },userId);
+  }
+
+  @Get('searchCategories/categories')
+  async findByCategoryIds(
+    @Query('categoryIds') categoryIds: string,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+    @Request() req,
+  ): Promise<Pagination<Book>> {
+    const options: IPaginationOptions = {
+      page: page || 1,
+      limit: limit || 10,
+    };
+    const userId = req.user.id;
+    const categoryIdsArray = categoryIds.split(',').map(id => parseInt(id, 10));
+
+    return this.booksService.findByCategoryIds(categoryIdsArray, options, userId);
   }
 
 

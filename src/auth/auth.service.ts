@@ -50,6 +50,7 @@ async signIn(
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) throw new UnauthorizedException('Credential Error');
     const access_token = await this.accessToken(user.id, user.email);
+    delete user.password;
     return { ...user, access_token,expiredDate:this.expiredDate };
   }
 

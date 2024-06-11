@@ -8,14 +8,22 @@ import {
   Delete,
   UseGuards,
   Request,
+  UseInterceptors,
+  ClassSerializerInterceptor,
+  SerializeOptions,
 } from '@nestjs/common';
 import { ChaptersService } from './chapters.service';
 import { CreateChapterDto } from './dto/create-chapter.dto';
 import { UpdateChapterDto } from './dto/update-chapter.dto';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { User } from 'src/users/entities/user.entity';
+import { GROUP_USER } from 'src/utils/group.sealizer';
 
 @UseGuards(JwtAuthGuard)
+ @UseInterceptors(ClassSerializerInterceptor)
+@SerializeOptions({
+  groups: [GROUP_USER],
+})
 @Controller('chapters')
 export class ChaptersController {
   constructor(private readonly chaptersService: ChaptersService) {}

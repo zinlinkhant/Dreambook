@@ -5,6 +5,7 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { FirebaseService } from 'src/services/firebase/firebase.service';
 
+
 @Injectable()
 export class UsersService {
   constructor(
