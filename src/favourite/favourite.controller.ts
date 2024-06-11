@@ -30,9 +30,9 @@ export class FavouriteController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Delete(':id')
-  remove(@Param('id') id: string, @Request() req) {
+  @Delete(':bookId')
+  remove(@Param('bookId') bookId: string, @Request() req) {
     const user: User = req.user;
-    return this.favouriteService.deleteById(+id, user);
+    return this.favouriteService.deleteById(+bookId, user);
   }
 }

@@ -50,10 +50,10 @@ export class FavouriteService {
   }
 
 
-  async deleteById(id: number, user: User): Promise<void> {
-    const favourite = await this.favouritesRepository.findOne({where:{id}});
+  async deleteById(bookId: number, user: User): Promise<void> {
+    const favourite = await this.favouritesRepository.findOne({where:{bookId:bookId , userId :user.id}});
     if (!favourite) {
-      throw new NotFoundException(`Favorite with id ${id} not found.`);
+      throw new NotFoundException(`book with id ${bookId} not found.`);
     }
     if (favourite.userId !== user.id) {
       throw new UnauthorizedException(`You are not authorized to delete this favourite.`);
