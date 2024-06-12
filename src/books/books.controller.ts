@@ -22,8 +22,7 @@ import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { User } from 'src/users/entities/user.entity';
 import { GROUP_USER } from 'src/utils/group.sealizer';
 import { OptionalJwtAuthGuard } from 'src/auth/guard/jwt-optional.guard';
-import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
-import { Book } from './entities/book.entity';
+import { IPaginationOptions } from 'nestjs-typeorm-paginate';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @SerializeOptions({
@@ -50,7 +49,7 @@ export class BooksController {
     return this.booksService.searchBooks(userId, options, title, author);
   }
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(OptionalJwtAuthGuard)
   @Get('popular/popular')
   async favouriteBook(@Request() req) {
     const userId = req.user.id
@@ -112,7 +111,7 @@ export class BooksController {
 
 
   @UseGuards(JwtAuthGuard)
-  @Get('user/:userId')
+  @Get('users/:userId')
   findByUserId(
     @Param('userId') userId: number,
     @Query('page') page: number = 1,
@@ -123,30 +122,14 @@ export class BooksController {
 
 
 
-  @UseGuards(JwtAuthGuard)
-  @Get('category/:categoryId')
-  findByCategoryId(@Param('categoryId') categoryId: number,@Query('page') page: number = 1,
-    @Query('limit') limit: number = 12,@Request() req) {
-      const userId = req.user.id
-    return this.booksService.findByCategoryId(categoryId,{ page, limit },userId);
-  }
-
-  @Get('searchCategories/categories')
-  async findByCategoryIds(
-    @Query('categoryIds') categoryIds: string,
-    @Query('page') page: number,
-    @Query('limit') limit: number,
-    @Request() req,
-  ): Promise<Pagination<Book>> {
-    const options: IPaginationOptions = {
-      page: page || 1,
-      limit: limit || 10,
-    };
-    const userId = req.user.id;
-    const categoryIdsArray = categoryIds.split(',').map(id => parseInt(id, 10));
-
-    return this.booksService.findByCategoryIds(categoryIdsArray, options, userId);
-  }
+  // @UseGuards(JwtAuthGuard)
+  // @Get('category')
+  // findByCategoryId(@Param('categoryId') categoryId: number,@Query('page') page: number = 1,
+  //   @Query('limit') limit: number = 12,@Request() req, @Query('categoryIds') categoryIds: string,) {
+  //     const userId = req.user.id
+  //     const categoryIdsArray = categoryIds.split(',').map(id => parseInt(id, 10));
+  //   return this.booksService.findByCategoryId(categoryId,{ page, limit },userId);
+  // }
 
 
 

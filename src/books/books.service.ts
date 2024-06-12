@@ -65,9 +65,10 @@ export class BooksService {
     const favoriteBookIds = new Set(userFavorites.map(fav => fav.bookId));
     const booksWithFavorites = paginatedBooks.items.map(book => ({
       ...book,
-      isFavorited: favoriteBookIds.has(book.id),
+      isFavorited: favoriteBookIds.has(book.id)
     }));
     return new Pagination<Book>(booksWithFavorites, paginatedBooks.meta, paginatedBooks.links);
+    
   }
 
 
@@ -79,6 +80,7 @@ export class BooksService {
     const queryBuilder = this.bookRepository.createQueryBuilder('book');
     queryBuilder
       .where('book.userId = :userId', { userId })
+      .andWhere('book.status = :status', { status: true })
       .leftJoinAndSelect('book.user', 'user')
       .leftJoinAndSelect('book.category', 'category')
       .orderBy('book.createdAt', 'DESC');
@@ -113,8 +115,14 @@ export class BooksService {
   }
 
 
-  async findByCategoryId(categoryId: number,options,userId): Promise<Pagination<Book>> {
+  async findByCategoryId(categoryId: number | number[],options,userId): Promise<Pagination<Book>> {
      const queryBuilder = this.bookRepository.createQueryBuilder('book');
+     if (Array.isArray(categoryId)) {
+      queryBuilder.where('book.categoryId IN (:...categoryIds)', { categoryId});
+    } else {
+      queryBuilder.where('book.categoryId = :categoryId', { categoryId: categoryId});
+    }
+
     queryBuilder
       .where('book.categoryId = :categoryId', { categoryId })
       .andWhere('book.status = :status', { status: true })
@@ -135,37 +143,12 @@ export class BooksService {
     }));
     return new Pagination<Book>(booksWithFavorites, paginatedBooks.meta, paginatedBooks.links);
   }
-  async findByCategoryIds(
-    categoryIds: number[],
-    options: IPaginationOptions,
-    userId: number,
-  ): Promise<Pagination<Book>> {
-    const queryBuilder = this.bookRepository.createQueryBuilder('book');
-    
-    queryBuilder
-      .where('book.categoryId IN (:...categoryIds)', { categoryIds })
-      .andWhere('book.status = :status', { status: true })
-      .leftJoinAndSelect('book.user', 'user')
-      .leftJoinAndSelect('book.category', 'category')
-      .orderBy('book.createdAt', 'DESC');
-
-    const paginatedBooks = await paginate<Book>(queryBuilder, options);
-    const userFavorites = await this.favouriteRepository.find({
-      where: { userId },
-      select: ['bookId'],
-    });
-    const favoriteBookIds = new Set(userFavorites.map(fav => fav.bookId));
-    const booksWithFavorites = paginatedBooks.items.map(book => ({
-      ...book,
-      isFavorited: favoriteBookIds.has(book.id),
-    }));
-    return new Pagination<Book>(booksWithFavorites, paginatedBooks.meta, paginatedBooks.links);
-  }
 
   async findOne(id: number) {
     const book = await this.bookRepository.findOneOrFail({
       where: {
         id,
+        status:true
       },
       relations: {
         user: true,
@@ -182,6 +165,7 @@ export class BooksService {
         user: {
           id: user.id,
         },
+        status:true
       },
       relations: {
         user: true,
@@ -233,6 +217,7 @@ export class BooksService {
   async favouriteBook(userId): Promise<Book[]> {
     const books = await this.bookRepository
       .createQueryBuilder('book')
+      .where('book.status = :status', { status: true })
       .orderBy('book.favouriteCount', 'DESC')
       .leftJoinAndSelect('book.user', 'user')
       .leftJoinAndSelect('book.category', 'category')
@@ -264,7 +249,8 @@ export class BooksService {
     const categoryIds = interestedCategories.map(ic => ic.categoryId);
 
     const queryBuilder = this.bookRepository
-      .createQueryBuilder('book')
+    .createQueryBuilder('book')
+    .where('book.status = :status', { status: true })
       .innerJoinAndSelect('book.category', 'category')
       .innerJoinAndSelect('book.user', 'user')
       .where('book.categoryId IN (:...categoryIds)', { categoryIds })
@@ -287,6 +273,7 @@ export class BooksService {
     userId: number,
     options: IPaginationOptions,title?: string, author?: string): Promise<Pagination<Book>> {
 const queryBuilder = this.bookRepository.createQueryBuilder('book')
+.where('book.status = :status', { status: true })
       .innerJoinAndSelect('book.user', 'user')
       .innerJoinAndSelect('book.category', 'category');
 
