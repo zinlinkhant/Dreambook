@@ -1,9 +1,14 @@
-import { Controller, Post, Body,Request, UseGuards, Get, Param, Delete } from '@nestjs/common';
+import { Controller, Post, Body,Request, UseGuards, Get, Param, Delete, UseInterceptors, ClassSerializerInterceptor, SerializeOptions } from '@nestjs/common';
 import { FavouriteService } from './favourite.service';
 import { CreateFavouriteDto } from './dto/create-favourite.dto';
 import { User } from 'src/users/entities/user.entity';
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
+import { GROUP_USER } from 'src/utils/group.sealizer';
 
+@UseInterceptors(ClassSerializerInterceptor)
+@SerializeOptions({
+  groups: [GROUP_USER],
+})
 @Controller('favourites')
 export class FavouriteController {
   constructor(private readonly favouriteService: FavouriteService) {}
