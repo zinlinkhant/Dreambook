@@ -122,13 +122,10 @@ export class BooksController {
 
 
 
-  // @UseGuards(JwtAuthGuard)
-  // @Get('category')
-  // findByCategoryId(@Param('categoryId') categoryId: number,@Query('page') page: number = 1,
-  //   @Query('limit') limit: number = 12,@Request() req, @Query('categoryIds') categoryIds: string,) {
-  //     const userId = req.user.id
-  //     const categoryIdsArray = categoryIds.split(',').map(id => parseInt(id, 10));
-  //   return this.booksService.findByCategoryId(categoryId,{ page, limit },userId);
+  // @Get('categories/search-by-categories')
+  // findByCategoryIds(@Query('page') page: number = 1,
+  //   @Query('limit') limit: number = 12, @Query('categoryIds') categoryIds: any[],) {
+  //   return this.booksService.findByCategoryIds(categoryIds,{ page, limit });
   // }
 
 

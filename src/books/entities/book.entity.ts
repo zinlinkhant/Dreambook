@@ -36,7 +36,7 @@ export class Book {
   @Column({ type: 'int' })
   categoryId: number;
 
-  @Column({ type: 'text', nullable: false })
+  @Column({ type: 'text', nullable: true ,array:true})
   keywords: string[];
 
   @Column({ type: 'boolean', default: true })
