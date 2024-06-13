@@ -123,27 +123,37 @@ export class BooksService {
 
 
   
-  async findOne(id: number) {
-    const book = await this.bookRepository.findOneOrFail({
-      where: {
-        id,
-        status:true
-      },
-      relations: {
-        user: true,
-        category: true,
-      },
-    });
-    return book;
-  }
+  // async findOne(id: number) {
+  //   const book = await this.bookRepository.findOneOrFail({
+  //     where: {
+  //       id,
+  //       status:true
+  //     },
+  //     relations: {
+  //       user: true,
+  //       category: true,
+  //     },
+  //   });
+  //   return book;
+  // }
 
-  async findOneWithUser(user: User, id: number) {
+  async findOneWithUser(userId, id: number) {
+    const testBook = await this.bookRepository.findOne({where:{id}})
+    if (testBook.userId === userId) {
+      const book = await this.bookRepository.findOne({
+        where: {
+          id
+        },
+        relations: {
+          user: true,
+          category: true,
+        },
+      });
+      return book;
+    }
     const book = await this.bookRepository.findOne({
       where: {
         id,
-        user: {
-          id: user.id,
-        },
         status:true
       },
       relations: {
@@ -151,7 +161,11 @@ export class BooksService {
         category: true,
       },
     });
-    return book;
+    if (book) {
+      
+      return book;
+    }
+    throw new NotFoundException(`Book not found`)
   }
 
   async update(
@@ -184,14 +198,15 @@ export class BooksService {
     return this.bookRepository.save(updatedBook);
   }
 
-  async deleteBook(user: User, bookId: number): Promise<void> {
-    const book = await this.findOne(bookId);
+  async deleteBook(user: User, bookId: number): Promise<string> {
+    const book = await this.findOneWithUser(user.id,bookId);
 
     if (book.userId !== user.id) {
       throw new UnauthorizedException('You do not own this book');
     }
 
     await this.bookRepository.delete(bookId);
+    return "bookDeleted"
   }
   async favouriteBook(userId): Promise<Book[]> {
     const books = await this.bookRepository

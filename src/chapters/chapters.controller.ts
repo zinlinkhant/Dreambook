@@ -11,6 +11,7 @@ import {
   UseInterceptors,
   ClassSerializerInterceptor,
   SerializeOptions,
+  Query,
 } from '@nestjs/common';
 import { ChaptersService } from './chapters.service';
 import { CreateChapterDto } from './dto/create-chapter.dto';
@@ -28,25 +29,21 @@ import { GROUP_USER } from 'src/utils/group.sealizer';
 export class ChaptersController {
   constructor(private readonly chaptersService: ChaptersService) {}
 
-  @Post(':bookId')
-  create(@Body() createChapterDto: CreateChapterDto, @Request() req,@Param('bookId') bookId: number) {
+  @Post()
+  create(@Body() createChapterDto: CreateChapterDto, @Request() req,@Query('bookId') bookId: number) {
     const user : User = req.user
     return this.chaptersService.create(createChapterDto,user,bookId);
   }
 
 
-  @Get('book/:bookId')
-  findByBookId(@Request() req, @Param('bookId') bookId: number) {
+  @Get('book')
+  findByBookId(@Request() req, @Query('bookId') bookId: number) {
     const user: User = req.user;
     return this.chaptersService.findByBookId(user, bookId);
   }
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.chaptersService.findOne(+id);
-  }
   
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateChapterDto: UpdateChapterDto, @Request()  req) {
+  @Patch(':chapterId')
+  update(@Param('chapterId') id: string, @Body() updateChapterDto: UpdateChapterDto, @Request()  req) {
     const user = req.user
     return this.chaptersService.update(+id, updateChapterDto,user);
   }

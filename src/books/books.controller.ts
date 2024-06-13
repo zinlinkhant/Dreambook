@@ -89,10 +89,11 @@ export class BooksController {
   }
 
   
-  
+  @UseGuards(OptionalJwtAuthGuard)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.booksService.findOne(+id);
+  findOne(@Param('id') id: string,@Request() req) {
+    const userId = req.user.id
+    return this.booksService.findOneWithUser(userId,+id);
   }
 
 
