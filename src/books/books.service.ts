@@ -80,10 +80,9 @@ export class BooksService {
 
 
   async findByUser(
-    user: User,
+    userId,
     options: IPaginationOptions,
   ): Promise<Pagination<Book>> {
-    const userId = user.id;
     const queryBuilder = this.bookRepository.createQueryBuilder('book');
     queryBuilder
       .where('book.userId = :userId', { userId })
@@ -120,22 +119,6 @@ export class BooksService {
     return new Pagination<Book>(booksWithFavorites, paginatedBooks.meta, paginatedBooks.links);
   }
 
-
-
-  
-  // async findOne(id: number) {
-  //   const book = await this.bookRepository.findOneOrFail({
-  //     where: {
-  //       id,
-  //       status:true
-  //     },
-  //     relations: {
-  //       user: true,
-  //       category: true,
-  //     },
-  //   });
-  //   return book;
-  // }
 
   async findOneWithUser(userId, id: number) {
     const testBook = await this.bookRepository.findOne({where:{id}})
@@ -266,11 +249,10 @@ export class BooksService {
   async searchBooks(
     userId: number,
     options: IPaginationOptions,title?: string, author?: string): Promise<Pagination<Book>> {
-const queryBuilder = this.bookRepository.createQueryBuilder('book')
-.where('book.status = :status', { status: true })
+    const queryBuilder = this.bookRepository.createQueryBuilder('book')
+      .where('book.status = :status', { status: true })
       .innerJoinAndSelect('book.user', 'user')
       .innerJoinAndSelect('book.category', 'category');
-
     if (title) {
       queryBuilder.andWhere('book.title ILIKE :title', { title: `%${title}%` });
     }

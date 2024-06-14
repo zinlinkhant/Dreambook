@@ -106,7 +106,8 @@ export class BooksController {
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 12,
   ) {
-    return this.booksService.findByUser(req.user, { page, limit });
+    const userId = req.user.id
+    return this.booksService.findByUser(userId, { page, limit });
   }
 
 
