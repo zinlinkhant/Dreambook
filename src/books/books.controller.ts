@@ -23,6 +23,7 @@ import { User } from 'src/users/entities/user.entity';
 import { GROUP_USER } from 'src/utils/group.sealizer';
 import { OptionalJwtAuthGuard } from 'src/auth/guard/jwt-optional.guard';
 import { IPaginationOptions } from 'nestjs-typeorm-paginate';
+import { ParseNumberArrayPipe } from '../helper/pipe/parseNumberArrayPipe';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @SerializeOptions({
@@ -30,26 +31,27 @@ import { IPaginationOptions } from 'nestjs-typeorm-paginate';
 })
 @Controller('books')
 export class BooksController {
-  constructor(private readonly booksService: BooksService) {}
+  constructor(private readonly booksService: BooksService) { }
 
-@UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get('search')
   async searchBooks(
     @Request() req,
-    @Query('page') page: number=1,
-    @Query('limit') limit: number=12,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 12,
+    @Query('categoryIds', new ParseNumberArrayPipe('categoryIds')) categoryIds: number[],
     @Query('title') title?: string,
     @Query('author') author?: string,
-  ){
-    const options: IPaginationOptions= {
+  ) {
+    const options: IPaginationOptions = {
       page: page || 1,
       limit: limit || 10,
     };
     const userId = req.user.id;
-    return this.booksService.searchBooks(userId, options, title, author);
+    return this.booksService.searchBooks(userId, options, title, author,categoryIds);
   }
 
-@UseGuards(OptionalJwtAuthGuard)
+  @UseGuards(OptionalJwtAuthGuard)
   @Get('popular/popular')
   async favouriteBook(@Request() req) {
     const userId = req.user.id
@@ -60,14 +62,14 @@ export class BooksController {
 
   @UseGuards(JwtAuthGuard)
   @Get('recommended/recommended')
-  async findRecommendedBooks(@Request() req,@Query('page') page: number = 1,
+  async findRecommendedBooks(@Request() req, @Query('page') page: number = 1,
     @Query('limit') limit: number = 12) {
     const userId = req.user.id;
-    return this.booksService.findRecommendedBooks(userId,{page, limit });
+    return this.booksService.findRecommendedBooks(userId, { page, limit });
   }
-  
-  
-  
+
+
+
   @UseGuards(JwtAuthGuard)
   @Post()
   @UseInterceptors(FileInterceptor('coverImg'))
@@ -81,19 +83,23 @@ export class BooksController {
 
 
 
-@UseGuards(OptionalJwtAuthGuard)
+  @UseGuards(OptionalJwtAuthGuard)
   @Get()
-  findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 12,@Request() req) {
+  findAll(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 12,
+    @Request() req
+  ) {
     const userId = req.user.id
-    return this.booksService.findAll({ page, limit },userId);
+    return this.booksService.findAll({ page, limit }, userId);
   }
 
-  
+
   @UseGuards(OptionalJwtAuthGuard)
   @Get(':id')
-  findOne(@Param('id') id: string,@Request() req) {
+  findOne(@Param('id') id: string, @Request() req) {
     const userId = req.user.id
-    return this.booksService.findOneWithUser(userId,+id);
+    return this.booksService.findOneWithUser(userId, +id);
   }
 
 

@@ -28,7 +28,7 @@ export class BooksService {
     private readonly interestedCategoryRepository: Repository<InterestedCategory>,
     @InjectRepository(Favourite)
     private readonly favouriteRepository: Repository<Favourite>,
-  ) {}
+  ) { }
 
   async create(
     user: User,
@@ -105,7 +105,7 @@ export class BooksService {
       .leftJoinAndSelect('book.category', 'category')
       .orderBy('book.createdAt', 'DESC');
 
-        const paginatedBooks = await paginate<Book>(queryBuilder, options);
+    const paginatedBooks = await paginate<Book>(queryBuilder, options);
     const userFavorites = await this.favouriteRepository.find({
       where: { userId },
       select: ['bookId'],
@@ -120,8 +120,24 @@ export class BooksService {
   }
 
 
+
+  
+  // async findOne(id: number) {
+  //   const book = await this.bookRepository.findOneOrFail({
+  //     where: {
+  //       id,
+  //       status:true
+  //     },
+  //     relations: {
+  //       user: true,
+  //       category: true,
+  //     },
+  //   });
+  //   return book;
+  // }
+
   async findOneWithUser(userId, id: number) {
-    const testBook = await this.bookRepository.findOne({where:{id}})
+    const testBook = await this.bookRepository.findOne({ where: { id } })
     if (testBook.userId === userId) {
       const book = await this.bookRepository.findOne({
         where: {
@@ -137,7 +153,7 @@ export class BooksService {
     const book = await this.bookRepository.findOne({
       where: {
         id,
-        status:true
+        status: true
       },
       relations: {
         user: true,
@@ -145,7 +161,7 @@ export class BooksService {
       },
     });
     if (book) {
-      
+
       return book;
     }
     throw new NotFoundException(`Book not found`)
@@ -182,7 +198,7 @@ export class BooksService {
   }
 
   async deleteBook(user: User, bookId: number): Promise<string> {
-    const book = await this.findOneWithUser(user.id,bookId);
+    const book = await this.findOneWithUser(user.id, bookId);
 
     if (book.userId !== user.id) {
       throw new UnauthorizedException('You do not own this book');
@@ -226,8 +242,8 @@ export class BooksService {
     const categoryIds = interestedCategories.map(ic => ic.categoryId);
 
     const queryBuilder = this.bookRepository
-    .createQueryBuilder('book')
-    .where('book.status = :status', { status: true })
+      .createQueryBuilder('book')
+      .where('book.status = :status', { status: true })
       .innerJoinAndSelect('book.category', 'category')
       .innerJoinAndSelect('book.user', 'user')
       .where('book.categoryId IN (:...categoryIds)', { categoryIds })
@@ -248,17 +264,22 @@ export class BooksService {
 
   async searchBooks(
     userId: number,
-    options: IPaginationOptions,title?: string, author?: string): Promise<Pagination<Book>> {
-    const queryBuilder = this.bookRepository.createQueryBuilder('book')
-      .where('book.status = :status', { status: true })
+    options: IPaginationOptions,title?: string, author?: string,categoryIds?:number[]): Promise<Pagination<Book>> {
+const queryBuilder = this.bookRepository.createQueryBuilder('book')
+.where('book.status = :status', { status: true })
       .innerJoinAndSelect('book.user', 'user')
       .innerJoinAndSelect('book.category', 'category');
+
     if (title) {
       queryBuilder.andWhere('book.title ILIKE :title', { title: `%${title}%` });
     }
 
     if (author) {
       queryBuilder.andWhere('user.name ILIKE :name', { name: `%${author}%` });
+    }
+
+    if (categoryIds?.length > 0) {
+      queryBuilder.andWhere('category.id IN (:...categoryIds)', { categoryIds });
     }
 
     const paginatedBooks = await paginate<Book>(queryBuilder, options);
@@ -272,6 +293,6 @@ export class BooksService {
       isFavorited: favoriteBookIds.has(book.id),
     }));
 
-    return new Pagination<Book>(booksWithFavorites, paginatedBooks.meta, paginatedBooks.links);  
+    return new Pagination<Book>(booksWithFavorites, paginatedBooks.meta, paginatedBooks.links);
   }
 }
