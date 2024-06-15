@@ -42,19 +42,21 @@ export class BooksController {
     @Query('categoryIds', new ParseNumberArrayPipe('categoryIds')) categoryIds: number[],
     @Query('title') title?: string,
     @Query('author') author?: string,
+    @Query('searchUserId') searchUserId?: number,
+    @Query('bookId') bookId?: number
   ) {
     const options: IPaginationOptions = {
       page: page || 1,
       limit: limit || 10,
     };
     const userId = req.user.id;
-    return this.booksService.searchBooks(userId, options, title, author,categoryIds);
+    return this.booksService.searchBooks(userId, options, title, author,categoryIds,searchUserId,bookId);
   }
 
   @UseGuards(OptionalJwtAuthGuard)
   @Get('popular/popular')
   async favouriteBook(@Request() req) {
-    const userId = req.user.id
+    const userId = req.user.id 
     return this.booksService.favouriteBook(userId);
   }
 
@@ -94,17 +96,6 @@ export class BooksController {
     return this.booksService.findAll({ page, limit }, userId);
   }
 
-
-  @UseGuards(OptionalJwtAuthGuard)
-  @Get(':id')
-  findOne(@Param('id') id: string, @Request() req) {
-    const userId = req.user.id
-    return this.booksService.findOneWithUser(userId, +id);
-  }
-
-
-
-
   @UseGuards(JwtAuthGuard)
   @Get('user')
   findByUser(
@@ -115,28 +106,6 @@ export class BooksController {
     const userId = req.user.id
     return this.booksService.findByUser(userId, { page, limit });
   }
-
-
-
-  @UseGuards(JwtAuthGuard)
-  @Get('users/:userId')
-  findByUserId(
-    @Param('userId') userId: number,
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 12,
-  ) {
-    return this.booksService.findByUserId(userId, { page, limit });
-  }
-
-
-
-  // @Get('categories/search-by-categories')
-  // findByCategoryIds(@Query('page') page: number = 1,
-  //   @Query('limit') limit: number = 12, @Query('categoryIds') categoryIds: any[],) {
-  //   return this.booksService.findByCategoryIds(categoryIds,{ page, limit });
-  // }
-
-
 
   @UseGuards(JwtAuthGuard)
   @Patch(':id')

@@ -28,7 +28,7 @@ export class BooksService {
     private readonly interestedCategoryRepository: Repository<InterestedCategory>,
     @InjectRepository(Favourite)
     private readonly favouriteRepository: Repository<Favourite>,
-  ) { }
+  ) {}
 
   async create(
     user: User,
@@ -62,21 +62,17 @@ export class BooksService {
       select: ['bookId'],
     });
 
-    const favoriteBookIds = new Set(userFavorites.map(fav => fav.bookId));
-    const booksWithFavorites = paginatedBooks.items.map(book => ({
+    const favoriteBookIds = new Set(userFavorites.map((fav) => fav.bookId));
+    const booksWithFavorites = paginatedBooks.items.map((book) => ({
       ...book,
       isFavorited: favoriteBookIds.has(book.id),
     }));
-    return new Pagination<Book>(booksWithFavorites, paginatedBooks.meta, paginatedBooks.links);
+    return new Pagination<Book>(
+      booksWithFavorites,
+      paginatedBooks.meta,
+      paginatedBooks.links,
+    );
   }
-  // async findByCategoryIds(categoryIds: number[], options: IPaginationOptions): Promise<Pagination<Book>> {
-  //   const queryBuilder = this.bookRepository.createQueryBuilder('book');
-  //   queryBuilder
-  //     .leftJoinAndSelect('book.category', 'category')
-  //     .andWhere('category.categoryId IN (:...categoryIds)', { categoryIds });
-
-  //   return paginate<Book>(queryBuilder, options);
-  // }
 
 
   async findByUser(
@@ -93,10 +89,7 @@ export class BooksService {
     return paginate<Book>(queryBuilder, options);
   }
 
-  async findByUserId(
-    userId: number,
-    options: IPaginationOptions,
-  ): Promise<Pagination<Book>> {
+  async findByUserId(userId: number) {
     const queryBuilder = this.bookRepository.createQueryBuilder('book');
     queryBuilder
       .where('book.userId = :userId', { userId })
@@ -104,67 +97,24 @@ export class BooksService {
       .leftJoinAndSelect('book.user', 'user')
       .leftJoinAndSelect('book.category', 'category')
       .orderBy('book.createdAt', 'DESC');
-
-    const paginatedBooks = await paginate<Book>(queryBuilder, options);
-    const userFavorites = await this.favouriteRepository.find({
-      where: { userId },
-      select: ['bookId'],
-    });
-
-    const favoriteBookIds = new Set(userFavorites.map(fav => fav.bookId));
-    const booksWithFavorites = paginatedBooks.items.map(book => ({
-      ...book,
-      isFavorited: favoriteBookIds.has(book.id),
-    }));
-    return new Pagination<Book>(booksWithFavorites, paginatedBooks.meta, paginatedBooks.links);
   }
 
-
-
-  
-  // async findOne(id: number) {
-  //   const book = await this.bookRepository.findOneOrFail({
-  //     where: {
-  //       id,
-  //       status:true
-  //     },
-  //     relations: {
-  //       user: true,
-  //       category: true,
-  //     },
-  //   });
-  //   return book;
-  // }
-
   async findOneWithUser(userId, id: number) {
-    const testBook = await this.bookRepository.findOne({ where: { id } })
-    if (testBook.userId === userId) {
       const book = await this.bookRepository.findOne({
         where: {
-          id
+          id,
+          userId:userId
         },
         relations: {
           user: true,
           category: true,
         },
       });
+      if (!book) {
+        
+        throw new NotFoundException(`Book not found`);
+      }
       return book;
-    }
-    const book = await this.bookRepository.findOne({
-      where: {
-        id,
-        status: true
-      },
-      relations: {
-        user: true,
-        category: true,
-      },
-    });
-    if (book) {
-
-      return book;
-    }
-    throw new NotFoundException(`Book not found`)
   }
 
   async update(
@@ -205,7 +155,7 @@ export class BooksService {
     }
 
     await this.bookRepository.delete(bookId);
-    return "bookDeleted"
+    return 'bookDeleted';
   }
   async favouriteBook(userId): Promise<Book[]> {
     const books = await this.bookRepository
@@ -222,8 +172,8 @@ export class BooksService {
       select: ['bookId'],
     });
 
-    const favoriteBookIds = new Set(userFavorites.map(fav => fav.bookId));
-    const booksWithFavorites = books.map(book => ({
+    const favoriteBookIds = new Set(userFavorites.map((fav) => fav.bookId));
+    const booksWithFavorites = books.map((book) => ({
       ...book,
       isFavorited: favoriteBookIds.has(book.id),
     }));
@@ -239,7 +189,7 @@ export class BooksService {
       where: { userId },
       relations: ['category'],
     });
-    const categoryIds = interestedCategories.map(ic => ic.categoryId);
+    const categoryIds = interestedCategories.map((ic) => ic.categoryId);
 
     const queryBuilder = this.bookRepository
       .createQueryBuilder('book')
@@ -254,45 +204,72 @@ export class BooksService {
       where: { userId },
       select: ['bookId'],
     });
-    const favoriteBookIds = new Set(userFavorites.map(fav => fav.bookId));
-    const booksWithFavorites = paginatedBooks.items.map(book => ({
+    const favoriteBookIds = new Set(userFavorites.map((fav) => fav.bookId));
+    const booksWithFavorites = paginatedBooks.items.map((book) => ({
       ...book,
       isFavorited: favoriteBookIds.has(book.id),
     }));
-    return new Pagination<Book>(booksWithFavorites, paginatedBooks.meta, paginatedBooks.links);
+    return new Pagination<Book>(
+      booksWithFavorites,
+      paginatedBooks.meta,
+      paginatedBooks.links,
+    );
   }
 
   async searchBooks(
     userId: number,
-    options: IPaginationOptions,title?: string, author?: string,categoryIds?:number[]): Promise<Pagination<Book>> {
-const queryBuilder = this.bookRepository.createQueryBuilder('book')
-.where('book.status = :status', { status: true })
+    options: IPaginationOptions,
+    title?: string,
+    author?: string,
+    categoryIds?: number[],
+    searchUserId?: number,
+    bookId?: number,
+  ): Promise<Pagination<Book>> {
+    const queryBuilder = this.bookRepository
+      .createQueryBuilder('book')
+      .where('book.status = :status', { status: true })
       .innerJoinAndSelect('book.user', 'user')
       .innerJoinAndSelect('book.category', 'category');
 
     if (title) {
-      queryBuilder.andWhere('book.title ILIKE :title', { title: `%${title}%` });
+      queryBuilder
+        .andWhere('book.title ILIKE :title', { title: `%${title}%` })
+        .andWhere('book.status = :status', { status: true });
     }
 
     if (author) {
-      queryBuilder.andWhere('user.name ILIKE :name', { name: `%${author}%` });
+      queryBuilder
+        .andWhere('user.name ILIKE :name', { name: `%${author}%` })
+        .andWhere('book.status = :status', { status: true });
     }
 
     if (categoryIds?.length > 0) {
-      queryBuilder.andWhere('category.id IN (:...categoryIds)', { categoryIds });
+      queryBuilder.andWhere('category.id IN (:...categoryIds)', {
+        categoryIds,
+      }).andWhere('book.status = :status', { status: true });
     }
-
+    if (searchUserId) {
+      this.findByUserId(searchUserId);
+    }
+    if (bookId) {
+      queryBuilder
+      .andWhere('book.id = :id', { id: bookId })
+    }
     const paginatedBooks = await paginate<Book>(queryBuilder, options);
     const userFavorites = await this.favouriteRepository.find({
       where: { userId },
       select: ['bookId'],
     });
-    const favoriteBookIds = new Set(userFavorites.map(fav => fav.bookId));
-    const booksWithFavorites = paginatedBooks.items.map(book => ({
+    const favoriteBookIds = new Set(userFavorites.map((fav) => fav.bookId));
+    const booksWithFavorites = paginatedBooks.items.map((book) => ({
       ...book,
       isFavorited: favoriteBookIds.has(book.id),
     }));
 
-    return new Pagination<Book>(booksWithFavorites, paginatedBooks.meta, paginatedBooks.links);
+    return new Pagination<Book>(
+      booksWithFavorites,
+      paginatedBooks.meta,
+      paginatedBooks.links,
+    );
   }
 }
