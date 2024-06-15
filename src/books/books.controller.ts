@@ -34,12 +34,12 @@ export class BooksController {
   constructor(private readonly booksService: BooksService) { }
 
   @UseGuards(JwtAuthGuard)
-  @Get('search')
+  @Get('')
   async searchBooks(
     @Request() req,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 12,
-    @Query('categoryIds', new ParseNumberArrayPipe('categoryIds')) categoryIds: number[],
+    @Query('categoryIds', new ParseNumberArrayPipe('categoryIds')) categoryIds?: number[],
     @Query('title') title?: string,
     @Query('author') author?: string,
     @Query('searchUserId') searchUserId?: number,
@@ -81,19 +81,6 @@ export class BooksController {
     @Body() createBookDto: CreateBookDto,
   ) {
     return this.booksService.create(req.user, image, createBookDto);
-  }
-
-
-
-  @UseGuards(OptionalJwtAuthGuard)
-  @Get()
-  findAll(
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 12,
-    @Request() req
-  ) {
-    const userId = req.user.id
-    return this.booksService.findAll({ page, limit }, userId);
   }
 
   @UseGuards(JwtAuthGuard)
