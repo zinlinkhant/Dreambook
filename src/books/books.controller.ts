@@ -43,14 +43,14 @@ export class BooksController {
     @Query('title') title?: string,
     @Query('author') author?: string,
     @Query('searchUserId') searchUserId?: number,
-    @Query('bookId') bookId?: number
+    @Query('categoryId') categoryId?: number
   ) {
     const options: IPaginationOptions = {
       page: page || 1,
       limit: limit || 10,
     };
     const userId = req.user.id;
-    return this.booksService.searchBooks(userId, options, title, author,categoryIds,searchUserId,bookId);
+    return this.booksService.searchBooks(userId, options, title, author,categoryIds,categoryId,searchUserId);
   }
 
   @UseGuards(OptionalJwtAuthGuard)
@@ -92,6 +92,16 @@ export class BooksController {
   ) {
     const userId = req.user.id
     return this.booksService.findByUser(userId, { page, limit });
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('SearchBook/:bookId')
+  GetSingleBook(
+    @Request() req,
+    @Param('bookId') bookId: number,
+  ) {
+    const userId = req.user.id
+    return this.booksService.findSingleBook(userId,bookId);
   }
 
   @UseGuards(JwtAuthGuard)

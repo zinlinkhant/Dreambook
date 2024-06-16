@@ -82,7 +82,6 @@ export class BooksService {
     const queryBuilder = this.bookRepository.createQueryBuilder('book');
     queryBuilder
       .where('book.userId = :userId', { userId })
-      .andWhere('book.status = :status', { status: true })
       .leftJoinAndSelect('book.user', 'user')
       .leftJoinAndSelect('book.category', 'category')
       .orderBy('book.createdAt', 'DESC');
@@ -97,6 +96,26 @@ export class BooksService {
       .leftJoinAndSelect('book.user', 'user')
       .leftJoinAndSelect('book.category', 'category')
       .orderBy('book.createdAt', 'DESC');
+  }
+
+  async findSingleBook(userId:number,bookId:number){
+    const book = await this.bookRepository.findOne({
+      where: { id: bookId, status: true },
+      relations: ['user', 'category'],
+    });
+
+    if (!book) {
+      throw new NotFoundException(`Book with ID ${bookId} not found`);
+    }
+
+    const isFavorited = await this.favouriteRepository.findOne({
+      where: { bookId, userId },
+    });
+
+    return {
+      ...book,
+      isFavorited: !!isFavorited,
+    }
   }
 
   async findOneWithUser(userId, id: number) {
@@ -222,8 +241,8 @@ export class BooksService {
     title?: string,
     author?: string,
     categoryIds?: number[],
+    categoryId?: number,
     searchUserId?: number,
-    bookId?: number,
   ): Promise<Pagination<Book>> {
     const queryBuilder = this.bookRepository
       .createQueryBuilder('book')
@@ -234,26 +253,23 @@ export class BooksService {
     if (title) {
       queryBuilder
         .andWhere('book.title ILIKE :title', { title: `%${title}%` })
-        .andWhere('book.status = :status', { status: true });
     }
 
     if (author) {
       queryBuilder
         .andWhere('user.name ILIKE :name', { name: `%${author}%` })
-        .andWhere('book.status = :status', { status: true });
     }
 
     if (categoryIds?.length > 0) {
       queryBuilder.andWhere('category.id IN (:...categoryIds)', {
         categoryIds,
-      }).andWhere('book.status = :status', { status: true });
+      })
+    }
+    if(categoryId){
+      queryBuilder.andWhere('book.categoryId = :categoryId',{categoryId})
     }
     if (searchUserId) {
       this.findByUserId(searchUserId);
-    }
-    if (bookId) {
-      queryBuilder
-      .andWhere('book.id = :id', { id: bookId })
     }
     const paginatedBooks = await paginate<Book>(queryBuilder, options);
     const userFavorites = await this.favouriteRepository.find({
