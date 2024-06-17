@@ -30,7 +30,8 @@ export class ChaptersService {
       where: { id: bookId },
     });
     if (!book) {
-      throw new NotFoundException(`Book not found.`);}
+      throw new NotFoundException(`Book not found.`);
+    }
     const existingChapter = await this.chaptersRepository.findOne({
       where: { chapterNum: createChapterDto.chapterNum, bookId: bookId },
     });
@@ -52,7 +53,12 @@ export class ChaptersService {
     }
 
     if (book.userId === user.id) {
-      return this.chaptersRepository.find({ where: { bookId } });
+      return this.chaptersRepository.find({
+        where: { bookId },
+        order: {
+          priority: 'ASC',
+        },
+      });
     } else {
       return this.chaptersRepository.find({ where: { bookId, status: true } });
     }
@@ -82,8 +88,11 @@ export class ChaptersService {
     if (!book) {
       throw new NotFoundException(`Book not found.`);
     }
-     const existingChapter = await this.chaptersRepository.findOne({
-      where: { chapterNum: updateChapterDto.chapterNum, bookId: chapter.bookId },
+    const existingChapter = await this.chaptersRepository.findOne({
+      where: {
+        chapterNum: updateChapterDto.chapterNum,
+        bookId: chapter.bookId,
+      },
     });
 
     if (existingChapter) {

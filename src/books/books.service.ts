@@ -243,12 +243,14 @@ export class BooksService {
     categoryIds?: number[],
     categoryId?: number,
     searchUserId?: number,
+    sort?:string
   ): Promise<Pagination<Book>> {
     const queryBuilder = this.bookRepository
       .createQueryBuilder('book')
       .where('book.status = :status', { status: true })
       .innerJoinAndSelect('book.user', 'user')
-      .innerJoinAndSelect('book.category', 'category');
+      .innerJoinAndSelect('book.category', 'category')
+      .orderBy('book.createdAt', 'DESC')
 
     if (title) {
       queryBuilder
@@ -270,6 +272,9 @@ export class BooksService {
     }
     if (searchUserId) {
       this.findByUserId(searchUserId);
+    }
+    if (sort == "a-z") {
+      queryBuilder.orderBy('book.title', 'ASC')
     }
     const paginatedBooks = await paginate<Book>(queryBuilder, options);
     const userFavorites = await this.favouriteRepository.find({

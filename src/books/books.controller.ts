@@ -43,14 +43,15 @@ export class BooksController {
     @Query('title') title?: string,
     @Query('author') author?: string,
     @Query('searchUserId') searchUserId?: number,
-    @Query('categoryId') categoryId?: number
+    @Query('categoryId') categoryId?: number,
+    @Query('sort') sort?:string,
   ) {
     const options: IPaginationOptions = {
       page: page || 1,
       limit: limit || 10,
     };
     const userId = req.user.id;
-    return this.booksService.searchBooks(userId, options, title, author,categoryIds,categoryId,searchUserId);
+    return this.booksService.searchBooks(userId, options, title, author,categoryIds,categoryId,searchUserId,sort);
   }
 
   @UseGuards(OptionalJwtAuthGuard)
