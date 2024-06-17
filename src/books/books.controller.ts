@@ -94,7 +94,7 @@ export class BooksController {
     return this.booksService.findByUser(userId, { page, limit });
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(OptionalJwtAuthGuard)
   @Get('SearchBook/:bookId')
   GetSingleBook(
     @Request() req,

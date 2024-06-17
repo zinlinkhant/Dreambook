@@ -155,14 +155,14 @@ export class BooksService {
       coverImg = await this.firebaseService.uploadFile(image);
       this.firebaseService.deleteFile(book.coverImg);
     }
-    const updatedBook = this.bookRepository.create({
-      ...book,
-      ...updateBookDto,
-      coverImg,
-      keywords: Array.isArray(updateBookDto.keywords)
-        ? updateBookDto.keywords
-        : book.keywords,
-    });
+      
+      const updatedBook = this.bookRepository.create({
+        ...book,
+        ...updateBookDto,
+        coverImg,
+         keywords: Array.isArray(updateBookDto.keywords) ? updateBookDto.keywords : book.keywords,
+      });
+
     return this.bookRepository.save(updatedBook);
   }
 

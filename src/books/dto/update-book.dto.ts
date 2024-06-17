@@ -18,14 +18,14 @@ export class UpdateBookDto {
   slug?: string;
 
   @IsInt()
-  @IsNotEmpty()
+  @IsOptional()
   categoryId?: number;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   keywords: string;
 
   @IsBoolean()
-  @IsNotEmpty()
+  @IsOptional()
   status?: boolean;
 }
