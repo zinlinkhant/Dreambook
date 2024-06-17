@@ -33,7 +33,7 @@ import { ParseNumberArrayPipe } from '../helper/pipe/parseNumberArrayPipe';
 export class BooksController {
   constructor(private readonly booksService: BooksService) { }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(OptionalJwtAuthGuard)
   @Get('')
   async searchBooks(
     @Request() req,
