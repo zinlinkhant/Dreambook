@@ -5,12 +5,16 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from './entities/category.entity';
 import { Repository } from 'typeorm';
 import { FirebaseService } from '../services/firebase/firebase.service';
+import { InterestedCategory } from 'src/interested-category/entities/interested-category.entity';
+
 @Injectable()
 export class CategoriesService {
   constructor(
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
     private firebaseService: FirebaseService,
+        @InjectRepository(InterestedCategory)
+    private interestedCategoryRepository: Repository<InterestedCategory>,
   ) {}
 
   async create(
@@ -66,5 +70,14 @@ export class CategoriesService {
     const category = await this.findOne(id);
     return await this.categoryRepository.delete(id);
     return category;
+  }
+    async getCategoriesByPopular(){
+const queryBuilder = this.interestedCategoryRepository.createQueryBuilder('interested_category')
+      .select('interested_category.categoryId', 'categoryId')
+      .addSelect('COUNT(interested_category.categoryId)', 'count')
+      .groupBy('interested_category.categoryId')
+      .orderBy('count', 'DESC');
+
+    return queryBuilder.getRawMany();
   }
 }

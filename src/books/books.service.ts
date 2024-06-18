@@ -74,7 +74,6 @@ export class BooksService {
     );
   }
 
-
   async findByUser(
     userId,
     options: IPaginationOptions,
@@ -98,7 +97,7 @@ export class BooksService {
       .orderBy('book.createdAt', 'DESC');
   }
 
-  async findSingleBook(userId:number,bookId:number){
+  async findSingleBook(userId: number, bookId: number) {
     const book = await this.bookRepository.findOne({
       where: { id: bookId, status: true },
       relations: ['user', 'category'],
@@ -115,25 +114,24 @@ export class BooksService {
     return {
       ...book,
       isFavorited: !!isFavorited,
-    }
+    };
   }
 
   async findOneWithUser(userId, id: number) {
-      const book = await this.bookRepository.findOne({
-        where: {
-          id,
-          userId:userId
-        },
-        relations: {
-          user: true,
-          category: true,
-        },
-      });
-      if (!book) {
-        
-        throw new NotFoundException(`Book not found`);
-      }
-      return book;
+    const book = await this.bookRepository.findOne({
+      where: {
+        id,
+        userId: userId,
+      },
+      relations: {
+        user: true,
+        category: true,
+      },
+    });
+    if (!book) {
+      throw new NotFoundException(`Book not found`);
+    }
+    return book;
   }
 
   async update(
@@ -155,13 +153,17 @@ export class BooksService {
       coverImg = await this.firebaseService.uploadFile(image);
       this.firebaseService.deleteFile(book.coverImg);
     }
-      
-      const updatedBook = this.bookRepository.create({
-        ...book,
-        ...updateBookDto,
-        coverImg,
-         keywords: Array.isArray(updateBookDto.keywords) ? updateBookDto.keywords : book.keywords,
-      });
+    let keywords = book.keywords;
+    if (updateBookDto.keywords) {
+      keywords = updateBookDto.keywords;
+    }
+    const updatedBook = this.bookRepository.create({
+      ...book,
+      ...updateBookDto,
+      userId: user.id,
+      coverImg,
+      keywords,
+    });
 
     return this.bookRepository.save(updatedBook);
   }
@@ -243,38 +245,36 @@ export class BooksService {
     categoryIds?: number[],
     categoryId?: number,
     searchUserId?: number,
-    sort?:string
+    sort?: string,
   ): Promise<Pagination<Book>> {
     const queryBuilder = this.bookRepository
       .createQueryBuilder('book')
       .where('book.status = :status', { status: true })
       .innerJoinAndSelect('book.user', 'user')
       .innerJoinAndSelect('book.category', 'category')
-      .orderBy('book.createdAt', 'DESC')
+      .orderBy('book.createdAt', 'DESC');
 
     if (title) {
-      queryBuilder
-        .andWhere('book.title ILIKE :title', { title: `%${title}%` })
+      queryBuilder.andWhere('book.title ILIKE :title', { title: `%${title}%` });
     }
 
     if (author) {
-      queryBuilder
-        .andWhere('user.name ILIKE :name', { name: `%${author}%` })
+      queryBuilder.andWhere('user.name ILIKE :name', { name: `%${author}%` });
     }
 
     if (categoryIds?.length > 0) {
       queryBuilder.andWhere('category.id IN (:...categoryIds)', {
         categoryIds,
-      })
+      });
     }
-    if(categoryId){
-      queryBuilder.andWhere('book.categoryId = :categoryId',{categoryId})
+    if (categoryId) {
+      queryBuilder.andWhere('book.categoryId = :categoryId', { categoryId });
     }
     if (searchUserId) {
       this.findByUserId(searchUserId);
     }
-    if (sort == "a-z") {
-      queryBuilder.orderBy('book.title', 'ASC')
+    if (sort == 'a-z') {
+      queryBuilder.orderBy('book.title', 'ASC');
     }
     const paginatedBooks = await paginate<Book>(queryBuilder, options);
     const userFavorites = await this.favouriteRepository.find({

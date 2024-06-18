@@ -16,11 +16,12 @@ import {
 import { ChaptersService } from './chapters.service';
 import { CreateChapterDto } from './dto/create-chapter.dto';
 import { UpdateChapterDto } from './dto/update-chapter.dto';
-import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+// import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { User } from 'src/users/entities/user.entity';
 import { GROUP_USER } from 'src/utils/group.sealizer';
+import { OptionalJwtAuthGuard } from 'src/auth/guard/jwt-optional.guard';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(OptionalJwtAuthGuard)
  @UseInterceptors(ClassSerializerInterceptor)
 @SerializeOptions({
   groups: [GROUP_USER],
