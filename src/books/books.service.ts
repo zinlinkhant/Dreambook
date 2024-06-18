@@ -140,13 +140,12 @@ export class BooksService {
     image: Express.Multer.File,
     updateBookDto: UpdateBookDto,
   ) {
-    const book = await this.findOneWithUser(user, id);
-    if (!book) {
-      throw new NotFoundException(`Book not found in this user`);
+    const book = await this.bookRepository.findOne({where:{id}});
+    if(!book){
+      throw new NotFoundException("book does not exist")
     }
-
-    if (book.userId !== user.id) {
-      throw new UnauthorizedException('You can only update your own books.');
+    if(book.userId !== user.id){
+      throw new UnauthorizedException("You do not own this book")
     }
     let coverImg = book.coverImg;
     if (image) {

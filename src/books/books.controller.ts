@@ -33,6 +33,24 @@ import { ParseNumberArrayPipe } from '../helper/pipe/parseNumberArrayPipe';
 export class BooksController {
   constructor(private readonly booksService: BooksService) { }
 
+    @UseGuards(OptionalJwtAuthGuard)
+  @Get('popular')
+  async favouriteBook(@Request() req) {
+    const userId = req.user.id 
+    return this.booksService.favouriteBook(userId);
+  }
+
+
+
+  @UseGuards(JwtAuthGuard)
+  @Get('recommended')
+  async findRecommendedBooks(@Request() req, @Query('page') page: number = 1,
+    @Query('limit') limit: number = 12) {
+    const userId = req.user.id;
+    return this.booksService.findRecommendedBooks(userId, { page, limit });
+  }
+
+
   @UseGuards(OptionalJwtAuthGuard)
   @Get('')
   async searchBooks(
@@ -53,24 +71,6 @@ export class BooksController {
     const userId = req.user.id;
     return this.booksService.searchBooks(userId, options, title, author,categoryIds,categoryId,searchUserId,sort);
   }
-
-  @UseGuards(OptionalJwtAuthGuard)
-  @Get('popular/popular')
-  async favouriteBook(@Request() req) {
-    const userId = req.user.id 
-    return this.booksService.favouriteBook(userId);
-  }
-
-
-
-  @UseGuards(JwtAuthGuard)
-  @Get('recommended/recommended')
-  async findRecommendedBooks(@Request() req, @Query('page') page: number = 1,
-    @Query('limit') limit: number = 12) {
-    const userId = req.user.id;
-    return this.booksService.findRecommendedBooks(userId, { page, limit });
-  }
-
 
 
   @UseGuards(JwtAuthGuard)
