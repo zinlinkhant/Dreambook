@@ -140,12 +140,12 @@ export class BooksService {
     image: Express.Multer.File,
     updateBookDto: UpdateBookDto,
   ) {
-    const book = await this.bookRepository.findOne({where:{id}});
-    if(!book){
-      throw new NotFoundException("book does not exist")
+    const book = await this.bookRepository.findOne({ where: { id } });
+    if (!book) {
+      throw new NotFoundException('book does not exist');
     }
-    if(book.userId !== user.id){
-      throw new UnauthorizedException("You do not own this book")
+    if (book.userId !== user.id) {
+      throw new UnauthorizedException('You do not own this book');
     }
     let coverImg = book.coverImg;
     if (image) {
@@ -210,7 +210,7 @@ export class BooksService {
       relations: ['category'],
     });
     if (!interestedCategories) {
-      throw new NotFoundException("you don't have any interested categories")
+      throw new NotFoundException("you don't have any interested categories");
     }
     const categoryIds = interestedCategories.map((ic) => ic.categoryId);
 
@@ -294,5 +294,18 @@ export class BooksService {
       paginatedBooks.meta,
       paginatedBooks.links,
     );
+  }
+
+  async findRelatedBooks(bookId:number) {
+    const book = await this.bookRepository.findOne({where:{id:bookId}});
+    if (!book) {
+      throw new NotFoundException(`Book with ID ${bookId} not found`);
+    }
+
+    const categoryId = book.categoryId;
+
+    const books = await this.bookRepository.find({where:{categoryId:categoryId,status:true},relations:{user:true,category:true},take:5})
+
+    return books;
   }
 }

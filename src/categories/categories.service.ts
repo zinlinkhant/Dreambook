@@ -77,7 +77,8 @@ export class CategoriesService {
     .leftJoinAndSelect('interested_category.category', 'category')
     .groupBy('interested_category.categoryId')
     .addGroupBy('category.id')
-    .orderBy('count', 'DESC');
+    .orderBy('count', 'DESC')
+    .limit(6);
 
   const rawResult = await queryBuilder.getRawMany();
 

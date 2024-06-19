@@ -54,6 +54,13 @@ export class BooksController {
   }
 
   @UseGuards(OptionalJwtAuthGuard)
+  @Get('related')
+  async findRelatedBooks(@Query('bookId') bookId:number) {
+    return this.booksService.findRelatedBooks(bookId);
+  }
+
+
+  @UseGuards(OptionalJwtAuthGuard)
   @Get('')
   async searchBooks(
     @Request() req,
