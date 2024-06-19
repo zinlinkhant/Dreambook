@@ -30,8 +30,12 @@ export class CommentsService {
       bookId,
       userId: user.id,
     });
+    await this.commentsRepository.save(comment);
 
-    return this.commentsRepository.save(comment);
+    return this.commentsRepository.findOne({
+      where: { id: comment.id },
+      relations: ['user'],
+    });
   }
 
   async findAllByBookId(bookId: number): Promise<Comment[]> {
@@ -59,7 +63,11 @@ export class CommentsService {
       throw new UnauthorizedException('you do not own this comment');
     }
     Object.assign(comment, updateCommentDto);
-    return this.commentsRepository.save(comment);
+    await this.commentsRepository.save(comment);
+    return this.commentsRepository.findOne({
+      where: { id },
+      relations: ['user'],
+    });
   }
 
   async remove(id: number, user: User): Promise<string> {
