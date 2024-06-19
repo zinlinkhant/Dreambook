@@ -37,6 +37,11 @@ export class ChaptersController {
   }
 
 
+  @Get(':chapterId')
+  findOne(@Request() req, @Query('chapterId') chapterId: number) {
+    return this.chaptersService.findOne(chapterId);
+  }
+
   @Get('book')
   findByBookId(@Request() req, @Query('bookId') bookId: number) {
     const user: User = req.user;

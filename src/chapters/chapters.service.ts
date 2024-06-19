@@ -59,16 +59,13 @@ export class ChaptersService {
           priority: 'ASC',
         },
       });
-    } else {
-      return this.chaptersRepository.find({ where: { bookId, status: true } });
     }
-  }
-  findAll(): Promise<Chapter[]> {
-    return this.chaptersRepository.find();
+    return this.chaptersRepository.find({ where: { bookId, status: true } });
+    
   }
 
   async findOne(id: number): Promise<Chapter> {
-    const chapter = await this.chaptersRepository.findOne({ where: { id } });
+    const chapter = await this.chaptersRepository.findOne({ where: { id },relations:{book:true} });
     if (!chapter) {
       throw new NotFoundException(`Chapter not found`);
     }

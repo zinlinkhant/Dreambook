@@ -13,7 +13,7 @@ export class CategoriesService {
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
     private firebaseService: FirebaseService,
-        @InjectRepository(InterestedCategory)
+    @InjectRepository(InterestedCategory)
     private interestedCategoryRepository: Repository<InterestedCategory>,
   ) {}
 
@@ -30,7 +30,7 @@ export class CategoriesService {
   }
   async findAll() {
     return this.categoryRepository.find({
-      order:{priority:"DESC"}
+      order: { priority: 'DESC' },
     });
   }
 
@@ -47,37 +47,49 @@ export class CategoriesService {
     image: Express.Multer.File,
     updateCategoryDto: UpdateCategoryDto,
   ) {
-    const category = await this.categoryRepository.findOne({where:{id}});
+    const category = await this.categoryRepository.findOne({ where: { id } });
     if (!category) {
       throw new NotFoundException(`Category with ID ${id} not found`);
     }
     let icon = category.icon;
     if (image) {
       icon = await this.firebaseService.uploadFile(image);
-      this.firebaseService.deleteFile(category.icon)
+      this.firebaseService.deleteFile(category.icon);
     }
 
-    const updatedCategory = this.categoryRepository.create( {
+    const updatedCategory = this.categoryRepository.create({
       ...category,
       ...updateCategoryDto,
       icon,
     });
 
     return this.categoryRepository.save(updatedCategory);
-
   }
   async remove(id: number) {
     const category = await this.findOne(id);
     return await this.categoryRepository.delete(id);
     return category;
   }
-    async getCategoriesByPopular(){
-const queryBuilder = this.interestedCategoryRepository.createQueryBuilder('interested_category')
-      .select('interested_category.categoryId', 'categoryId')
-      .addSelect('COUNT(interested_category.categoryId)', 'count')
-      .groupBy('interested_category.categoryId')
-      .orderBy('count', 'DESC');
+  async getCategoriesByPopular() {
+  const queryBuilder = this.interestedCategoryRepository.createQueryBuilder('interested_category')
+    .select('interested_category.categoryId')
+    .addSelect('COUNT(interested_category.categoryId)', 'count')
+    .leftJoinAndSelect('interested_category.category', 'category')
+    .groupBy('interested_category.categoryId')
+    .addGroupBy('category.id')
+    .orderBy('count', 'DESC');
 
-    return queryBuilder.getRawMany();
+  const rawResult = await queryBuilder.getRawMany();
+
+  // Extract categoryIds
+  const categoryIds = rawResult.map(row => row.interested_category_categoryId);
+
+  // Fetch full category details using the categoryIds
+  const categories = await this.categoryRepository.findByIds(categoryIds);
+
+  // Sort categories based on their frequency
+  const sortedCategories = categoryIds.map(id => categories.find(cat => cat.id === id));
+
+  return sortedCategories;
   }
 }

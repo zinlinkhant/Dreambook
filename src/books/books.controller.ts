@@ -13,6 +13,7 @@ import {
   Request,
   ClassSerializerInterceptor,
   SerializeOptions,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
@@ -24,10 +25,12 @@ import { GROUP_USER } from 'src/utils/group.sealizer';
 import { OptionalJwtAuthGuard } from 'src/auth/guard/jwt-optional.guard';
 import { IPaginationOptions } from 'nestjs-typeorm-paginate';
 import { ParseNumberArrayPipe } from '../helper/pipe/parseNumberArrayPipe';
-
+ 
 @UseInterceptors(ClassSerializerInterceptor)
 @SerializeOptions({
   groups: [GROUP_USER],
+
+  
 })
 @Controller('books')
 export class BooksController {
@@ -49,7 +52,6 @@ export class BooksController {
     const userId = req.user.id;
     return this.booksService.findRecommendedBooks(userId, { page, limit });
   }
-
 
   @UseGuards(OptionalJwtAuthGuard)
   @Get('')
@@ -99,7 +101,7 @@ export class BooksController {
   @Get('SearchBook/:bookId')
   GetSingleBook(
     @Request() req,
-    @Param('bookId') bookId: number,
+    @Param('bookId',ParseIntPipe) bookId: number,
   ) {
     const userId = req.user.id
     return this.booksService.findSingleBook(userId,bookId);
@@ -109,7 +111,7 @@ export class BooksController {
   @Patch(':id')
   @UseInterceptors(FileInterceptor('coverImg'))
   async update(
-    @Param('id') id: string,
+    @Param('id',ParseIntPipe) id: string,
     @Request() req,
     @Body() updateBookDto: UpdateBookDto,
     @UploadedFile() image: Express.Multer.File,
