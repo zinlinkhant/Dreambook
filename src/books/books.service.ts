@@ -209,6 +209,9 @@ export class BooksService {
       where: { userId },
       relations: ['category'],
     });
+    if (!interestedCategories) {
+      throw new NotFoundException("you don't have any interested categories")
+    }
     const categoryIds = interestedCategories.map((ic) => ic.categoryId);
 
     const queryBuilder = this.bookRepository
