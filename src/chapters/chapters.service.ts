@@ -23,7 +23,6 @@ export class ChaptersService {
 
   async create(
     createChapterDto: CreateChapterDto,
-    user: User,
     bookId: number,
   ): Promise<Chapter> {
     const book = await this.bookRepository.findOne({
@@ -39,7 +38,7 @@ export class ChaptersService {
     if (existingChapter) {
       throw new ConflictException('Chapter number already exists in this book');
     }
-    const chapter = await this.chaptersRepository.create(createChapterDto);
+    const chapter = await this.chaptersRepository.create({...createChapterDto,bookId});
     return this.chaptersRepository.save(chapter);
   }
 
@@ -60,7 +59,7 @@ export class ChaptersService {
         },
       });
     }
-    return this.chaptersRepository.find({ where: { bookId, status: true } });
+    return this.chaptersRepository.find({ where: { bookId, status: true } ,relations:{book:true}});
     
   }
 

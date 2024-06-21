@@ -204,15 +204,23 @@ export class BooksService {
   async findRecommendedBooks(
     userId: number,
     options: IPaginationOptions,
-  ): Promise<Pagination<Book>> {
+  ){
     const interestedCategories = await this.interestedCategoryRepository.find({
       where: { userId },
       relations: ['category'],
     });
-    if (!interestedCategories) {
-      throw new NotFoundException("you don't have any interested categories");
-    }
     const categoryIds = interestedCategories.map((ic) => ic.categoryId);
+     if (categoryIds.length < 1) {
+      return this.bookRepository.find({
+  where: {
+    status: true,
+  },
+  order: {
+    createdAt: 'DESC'
+  },
+      })
+    }
+
 
     const queryBuilder = this.bookRepository
       .createQueryBuilder('book')

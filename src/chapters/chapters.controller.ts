@@ -31,21 +31,20 @@ export class ChaptersController {
   constructor(private readonly chaptersService: ChaptersService) {}
 
   @Post()
-  create(@Body() createChapterDto: CreateChapterDto, @Request() req,@Query('bookId') bookId: number) {
-    const user : User = req.user
-    return this.chaptersService.create(createChapterDto,user,bookId);
+  create(@Body() createChapterDto: CreateChapterDto,@Query('bookId') bookId: number) {
+    return this.chaptersService.create(createChapterDto,bookId);
   }
 
+  
+    @Get('books')
+    findByBookId(@Request() req, @Query('bookId') bookId: number) {
+      const user: User = req.user;
+      return this.chaptersService.findByBookId(user, bookId);
+    }
 
   @Get(':chapterId')
   findOne(@Request() req, @Query('chapterId') chapterId: number) {
     return this.chaptersService.findOne(chapterId);
-  }
-
-  @Get('book')
-  findByBookId(@Request() req, @Query('bookId') bookId: number) {
-    const user: User = req.user;
-    return this.chaptersService.findByBookId(user, bookId);
   }
   
   @Patch(':chapterId')
