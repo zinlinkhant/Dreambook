@@ -28,7 +28,7 @@ export class ChapterProgressService {
   async create(
     createChapterProgressDto: CreateChapterProgressDto,
     user: User,
-  ): Promise<ChapterProgress> {
+  ){
     const { bookId, chapterProgress } = createChapterProgressDto;
     const existingProgress = await this.chapterProgressRepository.find({
       where: {
@@ -36,9 +36,9 @@ export class ChapterProgressService {
         bookId: bookId,
       },
     });
-    if (existingProgress !== null) {
+    if (existingProgress.length > 0) {
       const updateDto: UpdateChapterProgressDto = { chapterProgress };
-      return this.update(updateDto, user, bookId);
+      return this.update(updateDto, user.id, bookId);
     }
     const chapterProgressEntity = this.chapterProgressRepository.create({
       bookId,
@@ -51,13 +51,13 @@ export class ChapterProgressService {
 
   async update(
     updateChapterProgressDto: UpdateChapterProgressDto,
-    user: User,
+    userid: number,
     bookId: number,
   ): Promise<ChapterProgress> {
     const chapterProgress = await this.chapterProgressRepository.findOne({
       where: {
         bookId,
-        userId: user.id,
+        userId: userid
       },
     });
 

@@ -4,9 +4,9 @@ export class CreateChapterProgressDto {
   @IsNumber()
   bookId: number;
 
-  @IsNotEmpty()
-  @IsNumber()
-  userId: number;
+  // @IsNotEmpty()
+  // @IsNumber()
+  // userId: number;
 
   @IsNotEmpty()
   @IsNumber()
