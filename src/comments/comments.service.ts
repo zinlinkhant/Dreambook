@@ -41,7 +41,7 @@ export class CommentsService {
   async findAllByBookId(bookId: number): Promise<Comment[]> {
     return this.commentsRepository.find({
       where: { bookId },
-      relations: ['user'],
+      relations: {user:true},
     });
   }
 

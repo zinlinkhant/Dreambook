@@ -99,9 +99,11 @@ export class BooksController {
     @Request() req,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 12,
+    @Query('sort') sort?:string,
+    @Query('title') title?:string
   ) {
     const userId = req.user.id
-    return this.booksService.findByUser(userId, { page, limit });
+    return this.booksService.findByUser(userId, { page, limit },sort,title);
   }
 
   @UseGuards(OptionalJwtAuthGuard)
@@ -133,6 +135,13 @@ export class BooksController {
   deleteBook(@Request() req, @Param('bookId') bookId: number) {
     const user: User = req.user;
     return this.booksService.deleteBook(user, bookId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('favourite')
+  async favourite(@Request() req){
+    const userId = req.user.id
+     return this.booksService.findUserFavourite(userId);
   }
 
 }

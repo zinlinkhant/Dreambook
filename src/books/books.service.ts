@@ -77,13 +77,28 @@ export class BooksService {
   async findByUser(
     userId,
     options: IPaginationOptions,
+    sort?:string,
+    title?:string
+
   ): Promise<Pagination<Book>> {
     const queryBuilder = this.bookRepository.createQueryBuilder('book');
-    queryBuilder
+    
+    if (sort == "a-z") {
+      queryBuilder
       .where('book.userId = :userId', { userId })
       .leftJoinAndSelect('book.user', 'user')
       .leftJoinAndSelect('book.category', 'category')
-      .orderBy('book.createdAt', 'DESC');
+      .orderBy('book.title', 'ASC');
+    }else{
+      queryBuilder
+        .where('book.userId = :userId', { userId })
+        .leftJoinAndSelect('book.user', 'user')
+        .leftJoinAndSelect('book.category', 'category')
+        .orderBy('book.createdAt', 'DESC');
+    }
+    if (title) {
+      queryBuilder.andWhere('book.title ILIKE :title', { title: `%${title}%` })
+    }
     return paginate<Book>(queryBuilder, options);
   }
 
@@ -255,15 +270,15 @@ export class BooksService {
     categoryIds?: number[],
     categoryId?: number,
     searchUserId?: number,
-    sort?: string,
-  ): Promise<Pagination<Book>> {
+    sort?: string
+  ){
     const queryBuilder = this.bookRepository
       .createQueryBuilder('book')
       .where('book.status = :status', { status: true })
       .innerJoinAndSelect('book.user', 'user')
       .innerJoinAndSelect('book.category', 'category')
       .orderBy('book.createdAt', 'DESC');
-
+      
     if (title) {
       queryBuilder.andWhere('book.title ILIKE :title', { title: `%${title}%` });
     }
@@ -316,4 +331,16 @@ export class BooksService {
 
     return books;
   }
+
+  async findUserFavourite(userId:number){
+    // return this.favouriteRepository.find({where:{userId:userId},relations:{book:true,user:true}})
+      const queryBuilder = this.favouriteRepository.createQueryBuilder('favourite')
+    .leftJoinAndSelect('favourite.book', 'book')
+    .leftJoinAndSelect('favourite.user', 'user')
+    .where('favourite.userId = :userId', { userId })
+    .andWhere('book.status = :status', { status: true });
+
+  return queryBuilder.getMany();
+  }
+
 }
