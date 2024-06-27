@@ -139,9 +139,9 @@ export class BooksController {
 
   @UseGuards(JwtAuthGuard)
   @Get('favourite')
-  async favourite(@Request() req){
+  async favourite(@Request() req,@Query('sort') sort?:string,@Query('title') title?:string){
     const userId = req.user.id
-     return this.booksService.findUserFavourite(userId);
+     return this.booksService.findUserFavourite(userId,sort,title);
   }
 
 }

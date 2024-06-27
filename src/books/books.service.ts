@@ -332,15 +332,22 @@ export class BooksService {
     return books;
   }
 
-  async findUserFavourite(userId:number){
-    // return this.favouriteRepository.find({where:{userId:userId},relations:{book:true,user:true}})
-      const queryBuilder = this.favouriteRepository.createQueryBuilder('favourite')
+async findUserFavourite(userId: number, sort?: string, title?: string) {
+  const queryBuilder = this.favouriteRepository.createQueryBuilder('favourite')
     .leftJoinAndSelect('favourite.book', 'book')
     .leftJoinAndSelect('favourite.user', 'user')
     .where('favourite.userId = :userId', { userId })
     .andWhere('book.status = :status', { status: true });
 
-  return queryBuilder.getMany();
+  if (sort === 'a-z') {
+    queryBuilder.orderBy('book.title', 'ASC');
   }
+
+  if (title) {
+    queryBuilder.andWhere('book.title LIKE :title', { title: `%${title}%` });
+  }
+
+  return queryBuilder.getMany();
+}
 
 }
