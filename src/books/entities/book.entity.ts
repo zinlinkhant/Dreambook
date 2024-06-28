@@ -3,6 +3,7 @@ import { ChapterProgress } from 'src/chapter-progress/entities/chapter-progress.
 import { Chapter } from 'src/chapters/entities/chapter.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
 import { Favourite } from 'src/favourite/entities/favourite.entity';
+import { History } from 'src/history/entities/history.entitiy';
 import { User } from 'src/users/entities/user.entity';
 import {
   Entity,
@@ -73,4 +74,7 @@ export class Book {
 
    @OneToMany(() => Comment, comment => comment.book)
   comments: Comment[];
+
+   @OneToMany(() => History, history => history.book)
+  histories: History[];
 }

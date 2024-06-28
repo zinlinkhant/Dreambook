@@ -14,6 +14,7 @@ import { ChapterProgressModule } from './chapter-progress/chapter-progress.modul
 import { FavouriteModule } from './favourite/favourite.module';
 import { InterestedCategoryModule } from './interested-category/interested-category.module';
 import { CommentsModule } from './comments/comments.module';
+import { HistoryModule } from './history/history.module';
 
 
 
@@ -33,6 +34,7 @@ import { CommentsModule } from './comments/comments.module';
     FavouriteModule,
     InterestedCategoryModule,
     CommentsModule,
+    HistoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -4,6 +4,7 @@ import { ChapterProgress } from "src/chapter-progress/entities/chapter-progress.
 import { Chapter } from "src/chapters/entities/chapter.entity";
 import { Comment } from "src/comments/entities/comment.entity";
 import { Favourite } from "src/favourite/entities/favourite.entity";
+import { History } from "src/history/entities/history.entitiy";
 import { InterestedCategory } from "src/interested-category/entities/interested-category.entity";
 import { User } from "src/users/entities/user.entity";
 import { ModeEnum } from "src/utils/mode.enum";
@@ -22,7 +23,7 @@ const config: PostgresConnectionOptions = {
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   entities: [
-    User, Book, Category, Chapter, ChapterProgress, Favourite, InterestedCategory, Comment
+    User, Book, Category, Chapter, ChapterProgress, Favourite, InterestedCategory, Comment , History
   ],
   ...sslReject,
   synchronize: true,
