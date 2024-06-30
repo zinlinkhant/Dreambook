@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Param, Body, Patch, Delete, Request, UseGuards, UseInterceptors, ClassSerializerInterceptor, SerializeOptions } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, Patch, Delete, Request, UseGuards, UseInterceptors, ClassSerializerInterceptor, SerializeOptions, Query } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
@@ -21,9 +21,9 @@ export class CommentsController {
     return this.commentService.create(createCommentDto, user);
   }
 
-  @Get('book/:bookId')
-  async findAllByBookId(@Param('bookId') bookId: number) {
-    return this.commentService.findAllByBookId(bookId);
+  @Get('book')
+  async findAllByBookId(@Query('slug') slug: string) {
+    return this.commentService.findAllBySlug(slug);
   }
 
   @Patch(':id')

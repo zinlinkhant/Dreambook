@@ -17,7 +17,7 @@ export class CommentsService {
     @InjectRepository(Comment)
     private readonly commentsRepository: Repository<Comment>,
     @InjectRepository(Book)
-    private readonly booksRepository: Repository<Book>,
+    private readonly bookRepository: Repository<Book>,
   ) {}
 
   async create(
@@ -38,7 +38,9 @@ export class CommentsService {
     });
   }
 
-  async findAllByBookId(bookId: number): Promise<Comment[]> {
+  async findAllBySlug(slug: string){
+    const book = await this.bookRepository.findOne({where:{slug}})
+    const bookId = book.id
     return this.commentsRepository.find({
       where: { bookId },
       relations: {user:true},
