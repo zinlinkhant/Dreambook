@@ -107,13 +107,13 @@ export class BooksController {
   }
 
   @UseGuards(OptionalJwtAuthGuard)
-  @Get('SearchBook/:bookId')
+  @Get('SearchBook/:slug')
   GetSingleBook(
     @Request() req,
-    @Param('bookId',ParseIntPipe) bookId: number,
+    @Param('slug') slug: string,
   ) {
     const userId = req.user.id
-    return this.booksService.findSingleBook(userId,bookId);
+    return this.booksService.findSingleBook(userId,slug);
   }
 
   @UseGuards(JwtAuthGuard)

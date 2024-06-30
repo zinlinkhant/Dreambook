@@ -17,6 +17,7 @@ export class HistoryService {
   }
 
   async findAllByUser(userId){
-    return this.historyRepository.find( {where:{userId:userId}, relations: ['user', 'book'] });
+    return this.historyRepository.find( {where:{userId:userId}, relations: ['user', 'book'],order: { createdAt: 'DESC' },
+  take: 12, });
   }
 }

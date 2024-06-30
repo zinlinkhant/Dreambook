@@ -112,11 +112,12 @@ export class BooksService {
       .orderBy('book.createdAt', 'DESC');
   }
 
-  async findSingleBook(userId: number, bookId: number) {
+  async findSingleBook(userId: number, slug:string) {
     const book = await this.bookRepository.findOne({
-      where: { id: bookId, status: true },
+      where: { slug:slug, status: true },
       relations: ['user', 'category'],
     });
+    const bookId = book.id
 
     if (!book) {
       throw new NotFoundException(`Book with ID ${bookId} not found`);

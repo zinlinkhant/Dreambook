@@ -81,14 +81,8 @@ export class CategoriesService {
     .limit(6);
 
   const rawResult = await queryBuilder.getRawMany();
-
-  // Extract categoryIds
   const categoryIds = rawResult.map(row => row.interested_category_categoryId);
-
-  // Fetch full category details using the categoryIds
   const categories = await this.categoryRepository.findByIds(categoryIds);
-
-  // Sort categories based on their frequency
   const sortedCategories = categoryIds.map(id => categories.find(cat => cat.id === id));
 
   return sortedCategories;

@@ -1,7 +1,8 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
 export class CreateCommentDto {
   @IsNotEmpty()
   @IsString()
+  @Min(3)
   text: string;
 
   @IsNotEmpty()
