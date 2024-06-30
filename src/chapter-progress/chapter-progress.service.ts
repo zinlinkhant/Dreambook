@@ -5,21 +5,25 @@ import { CreateChapterProgressDto } from './dto/create-chapter-progress.dto';
 import { UpdateChapterProgressDto } from './dto/update-chapter-progress.dto';
 import { ChapterProgress } from './entities/chapter-progress.entity';
 import { User } from 'src/users/entities/user.entity';
+import { Book } from 'src/books/entities/book.entity';
 
 @Injectable()
 export class ChapterProgressService {
   constructor(
     @InjectRepository(ChapterProgress)
     private readonly chapterProgressRepository: Repository<ChapterProgress>,
+    @InjectRepository(Book)
+    private readonly bookRepository: Repository<Book>,
   ) {}
 
   async findAllByUserIdInBook(
-    bookId: string,
+    slug: string,
     user: User,
   ): Promise<ChapterProgress[]> {
+    const bookId = (await this.bookRepository.findOne({where:{slug:slug}})).id
     return this.chapterProgressRepository.find({
       where: {
-        bookId: +bookId,
+        bookId: bookId,
         userId: user.id,
       },
     });
@@ -28,8 +32,11 @@ export class ChapterProgressService {
   async create(
     createChapterProgressDto: CreateChapterProgressDto,
     user: User,
+    slug:string
   ){
-    const { bookId, chapterProgress } = createChapterProgressDto;
+    const book =await this.bookRepository.findOne({where:{slug:slug}})
+    const bookId = book.id
+    const {chapterProgress} = createChapterProgressDto;
     const existingProgress = await this.chapterProgressRepository.find({
       where: {
         userId: user.id,

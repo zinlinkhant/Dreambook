@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Request, Query } from '@nestjs/common';
 import { ChapterProgressService } from './chapter-progress.service';
 import { CreateChapterProgressDto } from './dto/create-chapter-progress.dto';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
@@ -10,19 +10,14 @@ export class ChapterProgressController {
   constructor(private readonly chapterProgressService: ChapterProgressService) {}
 
   @Post()
-  create(@Body() createChapterProgressDto: CreateChapterProgressDto, @Request() req) {
+  create(@Body() createChapterProgressDto: CreateChapterProgressDto, @Request() req,@Query('slug') slug:string) {
     const user:User = req.user
-    return this.chapterProgressService.create(createChapterProgressDto,user);
+    return this.chapterProgressService.create(createChapterProgressDto,user,slug);
   }
 
-  @Get(':bookId')
-  findAllByUserIdInBook(@Param('bookId') bookId: string ,@Request() req) {
+  @Get()
+  findAllByUserIdInBook(@Query('slug') slug: string ,@Request() req) {
     const user:User = req.user
-    return this.chapterProgressService.findAllByUserIdInBook(bookId,user);
+    return this.chapterProgressService.findAllByUserIdInBook(slug,user);
   }
-  // @Patch('')
-  // update( @Body() updateChapterProgressDto: UpdateChapterProgressDto,@Request() req) {
-  //   const user:User = req.user
-  //   return this.chapterProgressService.update(updateChapterProgressDto,user);
-  // }
 }
