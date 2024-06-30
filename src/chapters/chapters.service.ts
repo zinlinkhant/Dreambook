@@ -23,11 +23,12 @@ export class ChaptersService {
 
   async create(
     createChapterDto: CreateChapterDto,
-    bookId: number,
+    slug: string,
   ): Promise<Chapter> {
     const book = await this.bookRepository.findOne({
-      where: { id: bookId },
+      where: { slug: slug },
     });
+    const bookId = book.id
     if (!book) {
       throw new NotFoundException(`Book not found.`);
     }
@@ -42,11 +43,11 @@ export class ChaptersService {
     return this.chaptersRepository.save(chapter);
   }
 
-  async findByBookId(user: User, bookId: number): Promise<Chapter[]> {
+  async findBySlug(user: User, slug:string): Promise<Chapter[]> {
     const book = await this.bookRepository.findOne({
-      where: { id: bookId },
+      where: { slug:slug },
     });
-
+    const bookId = book.id
     if (!book) {
       throw new NotFoundException(`Book with id ${bookId} not found.`);
     }

@@ -22,7 +22,7 @@ import { GROUP_USER } from 'src/utils/group.sealizer';
 import { OptionalJwtAuthGuard } from 'src/auth/guard/jwt-optional.guard';
 
 @UseGuards(OptionalJwtAuthGuard)
- @UseInterceptors(ClassSerializerInterceptor)
+@UseInterceptors(ClassSerializerInterceptor)
 @SerializeOptions({
   groups: [GROUP_USER],
 })
@@ -31,26 +31,32 @@ export class ChaptersController {
   constructor(private readonly chaptersService: ChaptersService) {}
 
   @Post()
-  create(@Body() createChapterDto: CreateChapterDto,@Query('bookId') bookId: number) {
-    return this.chaptersService.create(createChapterDto,bookId);
+  create(
+    @Body() createChapterDto: CreateChapterDto,
+    @Query('slug') slug: string,
+  ) {
+    return this.chaptersService.create(createChapterDto, slug);
   }
 
-  
-    @Get('books')
-    findByBookId(@Request() req, @Query('bookId') bookId: number) {
-      const user: User = req.user;
-      return this.chaptersService.findByBookId(user, bookId);
-    }
+  @Get('books')
+  findByBookId(@Request() req, @Query('slug') slug: string) {
+    const user: User = req.user;
+    return this.chaptersService.findBySlug(user, slug);
+  }
 
   @Get(':chapterId')
   findOne(@Request() req, @Query('chapterId') chapterId: number) {
     return this.chaptersService.findOne(chapterId);
   }
-  
+
   @Patch(':chapterId')
-  update(@Param('chapterId') id: string, @Body() updateChapterDto: UpdateChapterDto, @Request()  req) {
-    const user = req.user
-    return this.chaptersService.update(+id, updateChapterDto,user);
+  update(
+    @Param('chapterId') id: string,
+    @Body() updateChapterDto: UpdateChapterDto,
+    @Request() req,
+  ) {
+    const user = req.user;
+    return this.chaptersService.update(+id, updateChapterDto, user);
   }
 
   @Delete(':chapterId')

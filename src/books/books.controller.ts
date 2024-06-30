@@ -13,7 +13,6 @@ import {
   Request,
   ClassSerializerInterceptor,
   SerializeOptions,
-  ParseIntPipe,
 } from '@nestjs/common';
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
@@ -55,8 +54,8 @@ export class BooksController {
 
   @UseGuards(OptionalJwtAuthGuard)
   @Get('related')
-  async findRelatedBooks(@Query('bookId') bookId:number) {
-    return this.booksService.findRelatedBooks(bookId);
+  async findRelatedBooks(@Query('slug') slug:string) {
+    return this.booksService.findRelatedBooks(slug);
   }
 
 
@@ -117,24 +116,24 @@ export class BooksController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Patch(':id')
+  @Patch(':slug')
   @UseInterceptors(FileInterceptor('coverImg'))
   async update(
-    @Param('id',ParseIntPipe) id: string,
+    @Param('slug') slug: string,
     @Request() req,
     @Body() updateBookDto: UpdateBookDto,
     @UploadedFile() image: Express.Multer.File,
   ) {
-    return this.booksService.update(req.user, +id, image, updateBookDto);
+    return this.booksService.update(req.user, slug, image, updateBookDto);
   }
 
 
 
   @UseGuards(JwtAuthGuard)
-  @Delete(':bookId')
-  deleteBook(@Request() req, @Param('bookId') bookId: number) {
+  @Delete(':slug')
+  deleteBook(@Request() req, @Param('slug') slug: string) {
     const user: User = req.user;
-    return this.booksService.deleteBook(user, bookId);
+    return this.booksService.deleteBook(user, slug);
   }
 
   @UseGuards(JwtAuthGuard)

@@ -133,30 +133,13 @@ export class BooksService {
     };
   }
 
-  async findOneWithUser(userId, id: number) {
-    const book = await this.bookRepository.findOne({
-      where: {
-        id,
-        userId: userId,
-      },
-      relations: {
-        user: true,
-        category: true,
-      },
-    });
-    if (!book) {
-      throw new NotFoundException(`Book not found`);
-    }
-    return book;
-  }
-
   async update(
     user: User,
-    id: number,
+    slug: string,
     image: Express.Multer.File,
     updateBookDto: UpdateBookDto,
   ) {
-    const book = await this.bookRepository.findOne({ where: { id } });
+    const book = await this.bookRepository.findOne({ where: { slug:slug } });
     if (!book) {
       throw new NotFoundException('book does not exist');
     }
@@ -164,6 +147,7 @@ export class BooksService {
       throw new UnauthorizedException('You do not own this book');
     }
     let coverImg = book.coverImg;
+    const sluged = slugify(updateBookDto.title)
     if (image) {
       coverImg = await this.firebaseService.uploadFile(image);
       this.firebaseService.deleteFile(book.coverImg);
@@ -178,13 +162,15 @@ export class BooksService {
       userId: user.id,
       coverImg,
       keywords,
+      slug:sluged
     });
 
     return this.bookRepository.save(updatedBook);
   }
 
-  async deleteBook(user: User, bookId: number): Promise<string> {
-    const book = await this.findOneWithUser(user.id, bookId);
+  async deleteBook(user: User, slug: string): Promise<string> {
+    const book = await this.bookRepository.findOne({where:{slug:slug}})
+    const bookId = book.id
 
     if (book.userId !== user.id) {
       throw new UnauthorizedException('You do not own this book');
@@ -320,8 +306,9 @@ export class BooksService {
     );
   }
 
-  async findRelatedBooks(bookId:number) {
-    const book = await this.bookRepository.findOne({where:{id:bookId}});
+  async findRelatedBooks(slug:string) {
+    const book = await this.bookRepository.findOne({where:{slug:slug}});
+    const bookId = book.id
     if (!book) {
       throw new NotFoundException(`Book with ID ${bookId} not found`);
     }
