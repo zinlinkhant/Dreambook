@@ -32,14 +32,22 @@ export class ChaptersService {
     if (!book) {
       throw new NotFoundException(`Book not found.`);
     }
+        const highestChapter = await this.chaptersRepository
+      .createQueryBuilder('chapter')
+      .where('chapter.bookId = :bookId', { bookId })
+      .orderBy('chapter.chapterNum', 'DESC')
+      .getOne();
+
+    const nextChapterNum =highestChapter.chapterNum + 1;
     const existingChapter = await this.chaptersRepository.findOne({
-      where: { chapterNum: createChapterDto.chapterNum, bookId: bookId },
+      where: { chapterNum: nextChapterNum, bookId: bookId },
     });
 
     if (existingChapter) {
       throw new ConflictException('Chapter number already exists in this book');
     }
-    const chapter = await this.chaptersRepository.create({...createChapterDto,bookId});
+
+    const chapter = await this.chaptersRepository.create({...createChapterDto,chapterNum:nextChapterNum,bookId});
     return this.chaptersRepository.save(chapter);
   }
 

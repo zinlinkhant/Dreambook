@@ -2,10 +2,6 @@ import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateChapterDto {
   @IsNotEmpty()
-  @IsNumber()
-  chapterNum: number;
-
-  @IsNotEmpty()
   @IsString()
   title: string;
 

@@ -177,7 +177,6 @@ export class BooksService {
     if (book.userId !== user.id) {
       throw new UnauthorizedException('You do not own this book');
     }
-
     await this.bookRepository.delete(bookId);
     return 'bookDeleted';
   }
