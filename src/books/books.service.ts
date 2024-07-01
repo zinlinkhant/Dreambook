@@ -168,10 +168,12 @@ export class BooksService {
     return this.bookRepository.save(updatedBook);
   }
 
-  async deleteBook(user: User, slug: string): Promise<string> {
+  async deleteBook(user: User, slug: string){
     const book = await this.bookRepository.findOne({where:{slug:slug}})
     const bookId = book.id
-
+    if(!book){
+      throw new NotFoundException('can"t find book')
+    }
     if (book.userId !== user.id) {
       throw new UnauthorizedException('You do not own this book');
     }

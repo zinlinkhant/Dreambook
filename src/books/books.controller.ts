@@ -130,7 +130,7 @@ export class BooksController {
 
 
   @UseGuards(JwtAuthGuard)
-  @Delete('')
+  @Delete()
   deleteBook(@Request() req, @Query('slug') slug: string) {
     const user: User = req.user;
     return this.booksService.deleteBook(user, slug);
