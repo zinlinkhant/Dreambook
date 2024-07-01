@@ -116,10 +116,10 @@ export class BooksController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Patch(':slug')
+  @Patch('')
   @UseInterceptors(FileInterceptor('coverImg'))
   async update(
-    @Param('slug') slug: string,
+    @Query('slug') slug: string,
     @Request() req,
     @Body() updateBookDto: UpdateBookDto,
     @UploadedFile() image: Express.Multer.File,
@@ -130,8 +130,8 @@ export class BooksController {
 
 
   @UseGuards(JwtAuthGuard)
-  @Delete(':slug')
-  deleteBook(@Request() req, @Param('slug') slug: string) {
+  @Delete('')
+  deleteBook(@Request() req, @Query('slug') slug: string) {
     const user: User = req.user;
     return this.booksService.deleteBook(user, slug);
   }
