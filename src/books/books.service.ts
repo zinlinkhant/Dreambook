@@ -77,19 +77,18 @@ export class BooksService {
   async findByUser(
     userId,
     options: IPaginationOptions,
-    sort?:string,
-    title?:string
-
+    sort?: string,
+    title?: string,
   ): Promise<Pagination<Book>> {
     const queryBuilder = this.bookRepository.createQueryBuilder('book');
-    
-    if (sort == "a-z") {
+
+    if (sort == 'a-z') {
       queryBuilder
-      .where('book.userId = :userId', { userId })
-      .leftJoinAndSelect('book.user', 'user')
-      .leftJoinAndSelect('book.category', 'category')
-      .orderBy('book.title', 'ASC');
-    }else{
+        .where('book.userId = :userId', { userId })
+        .leftJoinAndSelect('book.user', 'user')
+        .leftJoinAndSelect('book.category', 'category')
+        .orderBy('book.title', 'ASC');
+    } else {
       queryBuilder
         .where('book.userId = :userId', { userId })
         .leftJoinAndSelect('book.user', 'user')
@@ -97,7 +96,7 @@ export class BooksService {
         .orderBy('book.createdAt', 'DESC');
     }
     if (title) {
-      queryBuilder.andWhere('book.title ILIKE :title', { title: `%${title}%` })
+      queryBuilder.andWhere('book.title ILIKE :title', { title: `%${title}%` });
     }
     return paginate<Book>(queryBuilder, options);
   }
@@ -112,12 +111,12 @@ export class BooksService {
       .orderBy('book.createdAt', 'DESC');
   }
 
-  async findSingleBook(userId: number, slug:string) {
+  async findSingleBook(userId: number, slug: string) {
     const book = await this.bookRepository.findOne({
-      where: { slug:slug, status: true },
+      where: { slug: slug, status: true },
       relations: ['user', 'category'],
     });
-    const bookId = book.id
+    const bookId = book.id;
 
     if (!book) {
       throw new NotFoundException(`Book with ID ${bookId} not found`);
@@ -139,7 +138,7 @@ export class BooksService {
     image: Express.Multer.File,
     updateBookDto: UpdateBookDto,
   ) {
-    const book = await this.bookRepository.findOne({ where: { slug:slug } });
+    const book = await this.bookRepository.findOne({ where: { slug: slug } });
     if (!book) {
       throw new NotFoundException('book does not exist');
     }
@@ -147,7 +146,7 @@ export class BooksService {
       throw new UnauthorizedException('You do not own this book');
     }
     let coverImg = book.coverImg;
-    const sluged = slugify(updateBookDto.title)
+    const sluged = slugify(updateBookDto.title);
     if (image) {
       coverImg = await this.firebaseService.uploadFile(image);
       this.firebaseService.deleteFile(book.coverImg);
@@ -162,17 +161,17 @@ export class BooksService {
       userId: user.id,
       coverImg,
       keywords,
-      slug:sluged
+      slug: sluged,
     });
 
     return this.bookRepository.save(updatedBook);
   }
 
-  async deleteBook(user: User, slug: string){
-    const book = await this.bookRepository.findOne({where:{slug:slug}})
-    const bookId = book.id
-    if(!book){
-      throw new NotFoundException('can"t find book')
+  async deleteBook(user: User, slug: string) {
+    const book = await this.bookRepository.findOne({ where: { slug: slug } });
+    const bookId = book.id;
+    if (!book) {
+      throw new NotFoundException('can"t find book');
     }
     if (book.userId !== user.id) {
       throw new UnauthorizedException('You do not own this book');
@@ -204,26 +203,26 @@ export class BooksService {
     return booksWithFavorites;
   }
 
-  async findRecommendedBooks(
-    userId: number,
-    options: IPaginationOptions,
-  ){
+  async findRecommendedBooks(userId: number, options: IPaginationOptions) {
     const interestedCategories = await this.interestedCategoryRepository.find({
       where: { userId },
       relations: ['category'],
     });
     const categoryIds = interestedCategories.map((ic) => ic.categoryId);
-     if (categoryIds.length < 1) {
+    if (categoryIds.length < 1) {
       return this.bookRepository.find({
-  where: {
-    status: true,
-  },
-  order: {
-    createdAt: 'DESC'
-  },
-      })
+        where: {
+          status: true,
+        },
+        order: {
+          createdAt: 'DESC',
+        },
+        relations:{
+          user:true,
+          category:true
+        }
+      });
     }
-
 
     const queryBuilder = this.bookRepository
       .createQueryBuilder('book')
@@ -258,15 +257,15 @@ export class BooksService {
     categoryIds?: number[],
     categoryId?: number,
     searchUserId?: number,
-    sort?: string
-  ){
+    sort?: string,
+  ) {
     const queryBuilder = this.bookRepository
       .createQueryBuilder('book')
       .where('book.status = :status', { status: true })
       .innerJoinAndSelect('book.user', 'user')
       .innerJoinAndSelect('book.category', 'category')
       .orderBy('book.createdAt', 'DESC');
-      
+
     if (title) {
       queryBuilder.andWhere('book.title ILIKE :title', { title: `%${title}%` });
     }
@@ -307,36 +306,40 @@ export class BooksService {
     );
   }
 
-  async findRelatedBooks(slug:string) {
-    const book = await this.bookRepository.findOne({where:{slug:slug}});
-    const bookId = book.id
+  async findRelatedBooks(slug: string) {
+    const book = await this.bookRepository.findOne({ where: { slug: slug } });
+    const bookId = book.id;
     if (!book) {
       throw new NotFoundException(`Book with ID ${bookId} not found`);
     }
 
     const categoryId = book.categoryId;
 
-    const books = await this.bookRepository.find({where:{categoryId:categoryId,status:true},relations:{user:true,category:true},take:5})
+    const books = await this.bookRepository.find({
+      where: { categoryId: categoryId, status: true },
+      relations: { user: true, category: true },
+      take: 5,
+    });
 
     return books;
   }
 
-async findUserFavourite(userId: number, sort?: string, title?: string) {
-  const queryBuilder = this.favouriteRepository.createQueryBuilder('favourite')
-    .leftJoinAndSelect('favourite.book', 'book')
-    .leftJoinAndSelect('favourite.user', 'user')
-    .where('favourite.userId = :userId', { userId })
-    .andWhere('book.status = :status', { status: true });
+  async findUserFavourite(userId: number, sort?: string, title?: string) {
+    const queryBuilder = this.favouriteRepository
+      .createQueryBuilder('favourite')
+      .leftJoinAndSelect('favourite.book', 'book')
+      .leftJoinAndSelect('favourite.user', 'user')
+      .where('favourite.userId = :userId', { userId })
+      .andWhere('book.status = :status', { status: true });
 
-  if (sort === 'a-z') {
-    queryBuilder.orderBy('book.title', 'ASC');
+    if (sort === 'a-z') {
+      queryBuilder.orderBy('book.title', 'ASC');
+    }
+
+    if (title) {
+      queryBuilder.andWhere('book.title LIKE :title', { title: `%${title}%` });
+    }
+
+    return queryBuilder.getMany();
   }
-
-  if (title) {
-    queryBuilder.andWhere('book.title LIKE :title', { title: `%${title}%` });
-  }
-
-  return queryBuilder.getMany();
-}
-
 }
