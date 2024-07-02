@@ -32,13 +32,17 @@ export class ChaptersService {
     if (!book) {
       throw new NotFoundException(`Book not found.`);
     }
-        const highestChapter = await this.chaptersRepository
+    const highestChapter = await this.chaptersRepository
       .createQueryBuilder('chapter')
       .where('chapter.bookId = :bookId', { bookId })
       .orderBy('chapter.chapterNum', 'DESC')
       .getOne();
 
-    const nextChapterNum =highestChapter.chapterNum + 1;
+    let nextChapterNum = 1
+    if (highestChapter){
+       nextChapterNum =highestChapter.chapterNum + 1;
+    }
+
     const existingChapter = await this.chaptersRepository.findOne({
       where: { chapterNum: nextChapterNum, bookId: bookId },
     });
