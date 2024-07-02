@@ -13,7 +13,7 @@ export class Favourite {
   @Column({ type: 'int' })
   bookId: number;
 
-  @ManyToOne(() => User, user => user.favourites)
+  @ManyToOne(() => User, user => user.favourites,{onDelete:'CASCADE'})
   @JoinColumn({ name: 'userId' })
   user: User;
 

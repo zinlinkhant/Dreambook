@@ -16,10 +16,10 @@ export class Category {
     @Column()
     priority:string;
 
-    @OneToMany(() => Book, (book) => book.category,{ cascade: true, onDelete: 'SET NULL' })
+    @OneToMany(() => Book, (book) => book.category,{ cascade: true, onDelete:"SET NULL" })
     books: Book[];
 
-     @OneToMany(() => InterestedCategory, interestedCategory => interestedCategory.category)
+    @OneToMany(() => InterestedCategory, interestedCategory => interestedCategory.category,{onDelete:'CASCADE'})
   interestedCategories: InterestedCategory[];
 
      @CreateDateColumn({ name: 'created_at' })

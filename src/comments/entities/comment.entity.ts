@@ -16,11 +16,11 @@ export class Comment {
   @Column({ type: 'text' })
   text: string;
 
-  @ManyToOne(() => User, user => user.comments)
+  @ManyToOne(() => User, user => user.comments,{onDelete:'CASCADE'})
   @JoinColumn({ name: 'userId' })
   user: User;
 
-  @ManyToOne(() => Book, book => book.comments)
+  @ManyToOne(() => Book, book => book.comments,{onDelete:'CASCADE'})
   @JoinColumn({ name: 'bookId' })
   book: Book;
 

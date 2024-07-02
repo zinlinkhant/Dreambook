@@ -13,11 +13,11 @@ export class InterestedCategory {
   @Column({ type: 'int' })
   categoryId: number;
 
-  @ManyToOne(() => User, user => user.interestedCategories)
+  @ManyToOne(() => User, user => user.interestedCategories,{onDelete:'CASCADE'})
   @JoinColumn({ name: 'userId' })
   user: User;
 
-  @ManyToOne(() => Category, category => category.interestedCategories)
+  @ManyToOne(() => Category, category => category.interestedCategories,{onDelete:'CASCADE'})
   @JoinColumn({ name: 'categoryId' })
   category: Category;
 

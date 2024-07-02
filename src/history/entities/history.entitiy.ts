@@ -13,11 +13,11 @@ export class History {
   @Column()
   bookId: number;
 
-  @ManyToOne(() => User, user => user.histories)
+  @ManyToOne(() => User, user => user.histories,{onDelete:'CASCADE'})
   @JoinColumn({ name: 'userId' })
   user: User;
 
-  @ManyToOne(() => Book, book => book.histories)
+  @ManyToOne(() => Book, book => book.histories,{onDelete:'CASCADE'})
   @JoinColumn({ name: 'bookId' })
   book: Book;
 

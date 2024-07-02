@@ -17,11 +17,11 @@ export class ChapterProgress {
   @Column({ type: 'int' })
   chapterProgress: number;
 
-  @ManyToOne(() => User, user => user.chapterProgress)
+  @ManyToOne(() => User, user => user.chapterProgress,{onDelete:'CASCADE'})
   @JoinColumn({ name: 'userId' })
   user: User;
 
-  @ManyToOne(() => Book, book => book.chapterProgress)
+  @ManyToOne(() => Book, book => book.chapterProgress,{onDelete:'CASCADE'})
   @JoinColumn({ name: 'bookId' })
   book: Book;
 

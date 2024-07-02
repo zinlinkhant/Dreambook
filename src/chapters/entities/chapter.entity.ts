@@ -24,7 +24,7 @@ export class Chapter {
   @Column({ type: 'boolean', default: true })
   status: boolean;
 
-  @ManyToOne(() => Book, (book) => book.chapters,{ onDelete: 'CASCADE' })
+  @ManyToOne(() => Book, (book) => book.chapters,{ onDelete: 'SET NULL' })
   @JoinColumn({ name: 'bookId' })
   book: Book;
 

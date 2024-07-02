@@ -16,13 +16,12 @@ import {
   OneToMany
 } from 'typeorm';
 
-
 @Entity('books')
 export class Book {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'text' , unique:false})
+  @Column({ type: 'text', unique: false })
   title: string;
 
   @Column({ type: 'text', nullable: false })
@@ -31,13 +30,13 @@ export class Book {
   @Column({ type: 'text', nullable: false })
   description: string;
 
-  @Column({ type: 'text',nullable:false, unique:true })
+  @Column({ type: 'text', nullable: false, unique: true })
   slug: string;
 
   @Column({ type: 'int' })
   categoryId: number;
 
-  @Column({ type: 'text', nullable: true ,array:true})
+  @Column({ type: 'text', nullable: true, array: true })
   keywords: string[];
 
   @Column({ type: 'boolean', default: true })
@@ -55,26 +54,26 @@ export class Book {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @ManyToOne(() => User, (user) => user.books)  
+  @ManyToOne(() => User, (user) => user.books, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
   user: User;
 
-  @ManyToOne(()=>Category, (category)=> category.books,{ onDelete: 'SET NULL' } )
-  @JoinColumn({name: "categoryId"})
-  category:Category;
+  @ManyToOne(() => Category, (category) => category.books, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'categoryId' })
+  category: Category;
 
-  @OneToMany(() => Chapter, (chapter) => chapter.book)
+  @OneToMany(() => Chapter, (chapter) => chapter.book, { cascade: true, onDelete: 'CASCADE' })
   chapters: Chapter[];
 
-  @OneToMany(() => ChapterProgress, chapterProgress => chapterProgress.book)
+  @OneToMany(() => ChapterProgress, (chapterProgress) => chapterProgress.book, { cascade: true, onDelete: 'CASCADE' })
   chapterProgress: ChapterProgress[];
 
-  @OneToMany(() => Favourite, favourite => favourite.book)
+  @OneToMany(() => Favourite, (favourite) => favourite.book, { cascade: true, onDelete: 'CASCADE' })
   favourites: Favourite[];
 
-   @OneToMany(() => Comment, comment => comment.book)
+  @OneToMany(() => Comment, (comment) => comment.book, { cascade: true, onDelete: 'CASCADE' })
   comments: Comment[];
 
-   @OneToMany(() => History, history => history.book)
+  @OneToMany(() => History, (history) => history.book, { cascade: true, onDelete: 'CASCADE' })
   histories: History[];
 }
