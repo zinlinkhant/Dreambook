@@ -84,7 +84,6 @@ export class CategoriesService {
   const categoryIds = rawResult.map(row => row.interested_category_categoryId);
   const categories = await this.categoryRepository.findByIds(categoryIds);
   const sortedCategories = categoryIds.map(id => categories.find(cat => cat.id === id));
-
   return sortedCategories;
   }
 }

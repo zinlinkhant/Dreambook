@@ -8,7 +8,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
-    @Get('popularCategories')
+  @Get('popularCategories')
   async getCategoriesByPouplar() {
     return this.categoriesService.getCategoriesByPopular();
   }
