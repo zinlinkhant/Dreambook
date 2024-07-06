@@ -79,7 +79,7 @@ export class BooksService {
     options: IPaginationOptions,
     sort?: string,
     title?: string,
-  ): Promise<Pagination<Book>> {
+  ){
     const queryBuilder = this.bookRepository.createQueryBuilder('book');
 
     if (sort == 'a-z') {
@@ -101,21 +101,25 @@ export class BooksService {
     return paginate<Book>(queryBuilder, options);
   }
 
-  async findByUserId(userId: number) {
-    const queryBuilder = this.bookRepository.createQueryBuilder('book');
-    queryBuilder
-      .where('book.userId = :userId', { userId })
-      .andWhere('book.status = :status', { status: true })
-      .leftJoinAndSelect('book.user', 'user')
-      .leftJoinAndSelect('book.category', 'category')
-      .orderBy('book.createdAt', 'DESC');
-  }
-
   async findSingleBook(userId: number, slug: string) {
-    const book = await this.bookRepository.findOne({
+    const search = await this.bookRepository.findOne({
+      where: { slug: slug },
+    });
+
+    let book = await this.bookRepository.findOne({
       where: { slug: slug, status: true },
       relations: ['user', 'category'],
     });
+
+    if (search.userId == userId) {
+      book = await this.bookRepository.findOne({
+        where: { slug: slug },
+        relations: ['user', 'category'],
+      });
+    }
+    if (!book) {
+      throw new NotFoundException(`Book with slug ${slug} not found`);
+    }
     const bookId = book.id;
 
     if (!book) {
@@ -217,10 +221,10 @@ export class BooksService {
         order: {
           createdAt: 'DESC',
         },
-        relations:{
-          user:true,
-          category:true
-        }
+        relations: {
+          user: true,
+          category: true,
+        },
       });
     }
 
@@ -267,26 +271,37 @@ export class BooksService {
       .orderBy('book.createdAt', 'DESC');
 
     if (title) {
-      queryBuilder.andWhere('book.title ILIKE :title', { title: `%${title}%` });
+      queryBuilder
+      .andWhere('book.title ILIKE :title', { title: `%${title}%` });
     }
 
     if (author) {
-      queryBuilder.andWhere('user.name ILIKE :name', { name: `%${author}%` });
+      queryBuilder
+      .andWhere('user.name ILIKE :name', { name: `%${author}%` });
     }
 
     if (categoryIds?.length > 0) {
-      queryBuilder.andWhere('category.id IN (:...categoryIds)', {
+      queryBuilder
+      .andWhere('category.id IN (:...categoryIds)', {
         categoryIds,
       });
     }
     if (categoryId) {
-      queryBuilder.andWhere('book.categoryId = :categoryId', { categoryId });
+      queryBuilder
+      .andWhere('book.categoryId = :categoryId', { categoryId });
     }
     if (searchUserId) {
-      this.findByUserId(searchUserId);
+      if (userId == searchUserId) {
+        return this.findByUser(userId,options)
+      }
+        queryBuilder
+          .where('book.userId = :userId', { userId: searchUserId })
+          .andWhere('book.status = :status', { status: true });
+      
     }
     if (sort == 'a-z') {
-      queryBuilder.orderBy('book.title', 'ASC');
+      queryBuilder
+      .orderBy('book.title', 'ASC');
     }
     const paginatedBooks = await paginate<Book>(queryBuilder, options);
     const userFavorites = await this.favouriteRepository.find({

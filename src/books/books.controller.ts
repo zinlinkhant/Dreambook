@@ -68,8 +68,8 @@ export class BooksController {
     @Query('categoryIds', new ParseNumberArrayPipe('categoryIds')) categoryIds?: number[],
     @Query('title') title?: string,
     @Query('author') author?: string,
-    @Query('searchUserId') searchUserId?: number,
     @Query('categoryId') categoryId?: number,
+    @Query('searchUserId') searchUserId?: number,
     @Query('sort') sort?:string,
   ) {
     const options: IPaginationOptions = {
