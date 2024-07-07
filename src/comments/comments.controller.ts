@@ -21,14 +21,19 @@ export class CommentsController {
     return this.commentService.create(createCommentDto, user);
   }
   @Post("reply")
-  async reply(@Body() createCommentDto: CreateCommentDto, @Request() req) {
+  async reply(@Request() req,@Param('parentId') parentId:number,@Body() replyCommentDto:UpdateCommentDto) {
     const user: User = req.user;
-    return this.commentService.create(createCommentDto, user);
+    return this.commentService.createReply(user,parentId,replyCommentDto);
   }
 
   @Get('book')
   async findAllByBookId(@Query('slug') slug: string) {
     return this.commentService.findAllBySlug(slug);
+  }
+
+  @Get(':id')
+  async findByComment(@Param('id') id: number){
+    return this.commentService.findRepliedComments(id)
   }
 
   @Patch(':id')

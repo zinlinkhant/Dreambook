@@ -157,7 +157,6 @@ export class BooksService {
     let sluged = slug
     let coverImg = book.coverImg;
     if (updateBookDto.title) {
-      
        sluged = slugify(updateBookDto.title);
     }
     let status = false

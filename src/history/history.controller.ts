@@ -1,7 +1,8 @@
-import {Body, Controller,Get,Post,Request,UseGuards } from '@nestjs/common';
+import {Body, Controller,Get,Post,Query,Request,UseGuards } from '@nestjs/common';
 import { HistoryService } from './history.service';
 import { CreateHistoryDto } from './dto/create-history.dto';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { IPaginationOptions } from 'nestjs-typeorm-paginate';
 
 @UseGuards(JwtAuthGuard)
 @Controller('history')
@@ -15,8 +16,13 @@ export class HistoryController {
   }
 
   @Get()
-  async findAll(@Request() req){
+  async findAll(@Request() req,    @Query('page') page = 1,
+    @Query('limit') limit = 10,){
     const userId = req.user.id
-    return this.historyService.findAllByUser(userId);
+    const options: IPaginationOptions = {
+      page,
+      limit,
+    };
+    return this.historyService.findAllByUser(userId,options);
   }
 }

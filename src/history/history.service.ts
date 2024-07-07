@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { CreateHistoryDto } from './dto/create-history.dto';
 import { History } from './entities/history.entitiy';
 import { Book } from 'src/books/entities/book.entity';
+import { IPaginationOptions, paginate, Pagination } from 'nestjs-typeorm-paginate';
 
 @Injectable()
 export class HistoryService {
@@ -20,8 +21,14 @@ export class HistoryService {
     return this.historyRepository.save(history);
   }
 
-  async findAllByUser(userId){
-    return this.historyRepository.find( {where:{userId:userId}, relations: ['user', 'book'],order: { createdAt: 'DESC' },
-  take: 12, });
+  async findAllByUser(userId: number, options: IPaginationOptions): Promise<Pagination<History>> {
+    const queryBuilder = this.historyRepository.createQueryBuilder('history')
+      .leftJoinAndSelect('history.user', 'user')
+      .leftJoinAndSelect('history.book', 'book')
+      .leftJoinAndSelect('book.category', 'category')
+      .where('history.userId = :userId', { userId })
+      .orderBy('history.createdAt', 'DESC');
+
+    return paginate<History>(queryBuilder, options);
   }
 }
