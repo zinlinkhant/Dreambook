@@ -34,19 +34,19 @@ export class BooksService {
     user: User,
     image: Express.Multer.File,
     createBookDto: CreateBookDto,
-  ): Promise<Book> {
-    const result = await this.firebaseService.uploadFile(image);
+  ){
     const slug = slugify(createBookDto.title);
     let status = false
-    if (createBookDto.status === "true" || "TRUE" || "True") {
+    if (createBookDto.status === "true") {
       status = true
     }
+    const result = await this.firebaseService.uploadFile(image);
     const book = this.bookRepository.create({
       ...createBookDto,
       coverImg: result,
       slug,
       user,
-      status
+      status:status
     });
     return this.bookRepository.save(book);
   }
@@ -157,7 +157,7 @@ export class BooksService {
     }
     let coverImg = book.coverImg;
     let status = false
-    if (updateBookDto.status === "true" || "TRUE" || "True") {
+    if (updateBookDto.status === "true") {
       status = true
     }
     if (image) {
