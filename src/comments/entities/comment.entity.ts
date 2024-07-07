@@ -16,6 +16,9 @@ export class Comment {
   @Column({ type: 'text' })
   text: string;
 
+   @Column({ type: 'int', nullable: true })
+  parentId: number;
+
   @ManyToOne(() => User, user => user.comments,{onDelete:'CASCADE'})
   @JoinColumn({ name: 'userId' })
   user: User;

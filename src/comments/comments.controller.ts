@@ -20,6 +20,11 @@ export class CommentsController {
     const user: User = req.user;
     return this.commentService.create(createCommentDto, user);
   }
+  @Post("reply")
+  async reply(@Body() createCommentDto: CreateCommentDto, @Request() req) {
+    const user: User = req.user;
+    return this.commentService.create(createCommentDto, user);
+  }
 
   @Get('book')
   async findAllByBookId(@Query('slug') slug: string) {

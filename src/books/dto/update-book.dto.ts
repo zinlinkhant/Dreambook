@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsBoolean, IsInt, IsNotEmpty, IsArray } from 'class-validator';
+import { IsString, IsOptional, IsInt, IsNotEmpty, IsArray } from 'class-validator';
 
 export class UpdateBookDto {
   @IsString({message:"title should be string"})
@@ -26,7 +26,7 @@ export class UpdateBookDto {
   @IsOptional()
   keywords?: string[];
 
-  @IsBoolean()
+  @IsString()
   @IsOptional()
   status?: string;
 }

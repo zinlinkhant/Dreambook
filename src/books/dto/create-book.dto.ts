@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsInt, IsString, IsNotEmpty } from 'class-validator';
+import { IsArray, IsInt, IsString, IsNotEmpty } from 'class-validator';
 export class CreateBookDto {
   //   coverImg: string;
   // title: string;
@@ -26,7 +26,7 @@ export class CreateBookDto {
   @IsString({ each: true })
   keywords: string[];
 
-  @IsBoolean()
+  @IsString()
   status: string;
 
   @IsInt()

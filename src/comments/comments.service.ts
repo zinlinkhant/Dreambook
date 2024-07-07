@@ -24,11 +24,13 @@ export class CommentsService {
     createCommentDto: CreateCommentDto,
     user: User,
   ): Promise<Comment> {
-    const { bookId, text } = createCommentDto;
+    const { bookSlug, text , parentId } = createCommentDto;
+    const bookId = (await this.bookRepository.findOne({where:{slug:bookSlug}})).id
     const comment = this.commentsRepository.create({
       text,
       bookId,
       userId: user.id,
+      parentId
     });
     await this.commentsRepository.save(comment);
 
