@@ -148,16 +148,20 @@ export class BooksService {
     updateBookDto: UpdateBookDto,
   ) {
     const book = await this.bookRepository.findOne({ where: { slug } });
-    const sluged = slugify(updateBookDto.title);
     if (!book) {
       throw new NotFoundException('book does not exist');
     }
-    if (book.userId !== user.id) {
-      throw new UnauthorizedException('You do not own this book');
-    }
+    // if (book.userId !== user.id) {
+    //   throw new UnauthorizedException('You do not own this book');
+    // }
+    let sluged = slug
     let coverImg = book.coverImg;
+    if (updateBookDto.title) {
+      
+       sluged = slugify(updateBookDto.title);
+    }
     let status = false
-    if (updateBookDto.status === '"true"') {
+    if (updateBookDto.status === "true") {
       status = true
     }
     if (image) {
