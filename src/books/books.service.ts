@@ -37,10 +37,6 @@ export class BooksService {
   ): Promise<Book> {
     const result = await this.firebaseService.uploadFile(image);
     const slug = slugify(createBookDto.title);
-    const bookd = this.bookRepository.findOne({where:{slug:slug}})
-    if (bookd) {
-      throw new NotFoundException("book already exits")
-    }
     let status = false
     if (createBookDto.status === "true" || "TRUE" || "True") {
       status = true
