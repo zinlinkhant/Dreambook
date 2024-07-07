@@ -28,5 +28,5 @@ export class UpdateBookDto {
 
   @IsBoolean()
   @IsOptional()
-  status?: boolean;
+  status?: string;
 }

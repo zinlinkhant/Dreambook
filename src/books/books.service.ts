@@ -28,7 +28,7 @@ export class BooksService {
     private readonly interestedCategoryRepository: Repository<InterestedCategory>,
     @InjectRepository(Favourite)
     private readonly favouriteRepository: Repository<Favourite>,
-  ) {}
+  ) { }
 
   async create(
     user: User,
@@ -37,11 +37,20 @@ export class BooksService {
   ): Promise<Book> {
     const result = await this.firebaseService.uploadFile(image);
     const slug = slugify(createBookDto.title);
+    const bookd = this.bookRepository.findOne({where:{slug:slug}})
+    if (bookd) {
+      throw new NotFoundException("book already exits")
+    }
+    let status = false
+    if (createBookDto.status === "true" || "TRUE" || "True") {
+      status = true
+    }
     const book = this.bookRepository.create({
       ...createBookDto,
       coverImg: result,
       slug,
       user,
+      status
     });
     return this.bookRepository.save(book);
   }
@@ -79,7 +88,7 @@ export class BooksService {
     options: IPaginationOptions,
     sort?: string,
     title?: string,
-  ){
+  ) {
     const queryBuilder = this.bookRepository.createQueryBuilder('book');
 
     if (sort == 'a-z') {
@@ -142,7 +151,8 @@ export class BooksService {
     image: Express.Multer.File,
     updateBookDto: UpdateBookDto,
   ) {
-    const book = await this.bookRepository.findOne({ where: { slug: slug } });
+     const sluged = slugify(updateBookDto.title);
+    const book = await this.bookRepository.findOne({ where: { slug: sluged } });
     if (!book) {
       throw new NotFoundException('book does not exist');
     }
@@ -150,7 +160,10 @@ export class BooksService {
       throw new UnauthorizedException('You do not own this book');
     }
     let coverImg = book.coverImg;
-    const sluged = slugify(updateBookDto.title);
+    let status = false
+    if (updateBookDto.status === "true" || "TRUE" || "True") {
+      status = true
+    }
     if (image) {
       coverImg = await this.firebaseService.uploadFile(image);
       this.firebaseService.deleteFile(book.coverImg);
@@ -166,6 +179,7 @@ export class BooksService {
       coverImg,
       keywords,
       slug: sluged,
+      status
     });
 
     return this.bookRepository.save(updatedBook);
@@ -272,36 +286,36 @@ export class BooksService {
 
     if (title) {
       queryBuilder
-      .andWhere('book.title ILIKE :title', { title: `%${title}%` });
+        .andWhere('book.title ILIKE :title', { title: `%${title}%` });
     }
 
     if (author) {
       queryBuilder
-      .andWhere('user.name ILIKE :name', { name: `%${author}%` });
+        .andWhere('user.name ILIKE :name', { name: `%${author}%` });
     }
 
     if (categoryIds?.length > 0) {
       queryBuilder
-      .andWhere('category.id IN (:...categoryIds)', {
-        categoryIds,
-      });
+        .andWhere('category.id IN (:...categoryIds)', {
+          categoryIds,
+        });
     }
     if (categoryId) {
       queryBuilder
-      .andWhere('book.categoryId = :categoryId', { categoryId });
+        .andWhere('book.categoryId = :categoryId', { categoryId });
     }
     if (searchUserId) {
       if (userId == searchUserId) {
-        return this.findByUser(userId,options)
+        return this.findByUser(userId, options)
       }
-        queryBuilder
-          .where('book.userId = :userId', { userId: searchUserId })
-          .andWhere('book.status = :status', { status: true });
-      
+      queryBuilder
+        .where('book.userId = :userId', { userId: searchUserId })
+        .andWhere('book.status = :status', { status: true });
+
     }
     if (sort == 'a-z') {
       queryBuilder
-      .orderBy('book.title', 'ASC');
+        .orderBy('book.title', 'ASC');
     }
     const paginatedBooks = await paginate<Book>(queryBuilder, options);
     const userFavorites = await this.favouriteRepository.find({

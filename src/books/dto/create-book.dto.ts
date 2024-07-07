@@ -27,7 +27,7 @@ export class CreateBookDto {
   keywords: string[];
 
   @IsBoolean()
-  status: boolean;
+  status: string;
 
   @IsInt()
   userId: number;
