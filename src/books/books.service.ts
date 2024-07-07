@@ -147,8 +147,8 @@ export class BooksService {
     image: Express.Multer.File,
     updateBookDto: UpdateBookDto,
   ) {
-     const sluged = slugify(updateBookDto.title);
-    const book = await this.bookRepository.findOne({ where: { slug: sluged } });
+    const book = await this.bookRepository.findOne({ where: { slug } });
+    const sluged = slugify(updateBookDto.title);
     if (!book) {
       throw new NotFoundException('book does not exist');
     }
@@ -157,7 +157,7 @@ export class BooksService {
     }
     let coverImg = book.coverImg;
     let status = false
-    if (updateBookDto.status === "true") {
+    if (updateBookDto.status === '"true"') {
       status = true
     }
     if (image) {

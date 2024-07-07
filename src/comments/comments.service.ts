@@ -49,6 +49,11 @@ export class CommentsService {
     });
   }
 
+  async findRepliedComments(id:number){
+    const comments = await this.commentsRepository.find({where:{parentId:id},relations:{user:true}})
+    return comments
+  }
+
   async update(
     id: number,
     updateCommentDto: UpdateCommentDto,
