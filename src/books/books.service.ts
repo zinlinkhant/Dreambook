@@ -18,6 +18,7 @@ import {
 import { User } from '../users/entities/user.entity';
 import { InterestedCategory } from '../interested-category/entities/interested-category.entity';
 import { Favourite } from 'src/favourite/entities/favourite.entity';
+import { Chapter } from 'src/chapters/entities/chapter.entity';
 @Injectable()
 export class BooksService {
   constructor(
@@ -28,6 +29,8 @@ export class BooksService {
     private readonly interestedCategoryRepository: Repository<InterestedCategory>,
     @InjectRepository(Favourite)
     private readonly favouriteRepository: Repository<Favourite>,
+    @InjectRepository(Chapter)
+    private readonly chapterRepository: Repository<Chapter>,
   ) { }
 
   async create(
@@ -369,5 +372,27 @@ export class BooksService {
     }
 
     return queryBuilder.getMany();
+  }
+
+  // async chapter(){
+  //      const books = await this.bookRepository.find({ select: ['id'] });
+  //      return this.countChaptersForAllBooks(bo)
+  // }
+
+  async chapter(): Promise<{ bookId: number; chapterCount: number }[]> {
+    const books = await this.bookRepository.find();
+    const counts = [];
+
+    for (const book of books) {
+      const chapterCount = await this.chapterRepository.count({
+        where: { bookId: book.id },
+      });
+
+      await this.bookRepository.update(book.id, { chapterNum: chapterCount });
+
+      counts.push({ bookId: book.id, chapterCount });
+    }
+
+    return counts;
   }
 }

@@ -37,7 +37,6 @@ export class ChaptersService {
       .where('chapter.bookId = :bookId', { bookId })
       .orderBy('chapter.chapterNum', 'DESC')
       .getOne();
-
     let nextChapterNum = 1
     if (highestChapter){
        nextChapterNum =highestChapter.chapterNum + 1;
@@ -52,6 +51,8 @@ export class ChaptersService {
     }
 
     const chapter = await this.chaptersRepository.create({...createChapterDto,chapterNum:nextChapterNum,bookId});
+    book.chapterNum += 1;
+    await this.bookRepository.save(book);
     return this.chaptersRepository.save(chapter);
   }
 
@@ -128,6 +129,8 @@ export class ChaptersService {
     if (book.userId !== user.id) {
       throw new UnauthorizedException('You do not own this book');
     }
+    book.chapterNum -= 1;
+    await this.bookRepository.save(book);
 
     await this.chaptersRepository.delete(chapterId);
   }

@@ -24,6 +24,7 @@ import { GROUP_USER } from 'src/utils/group.sealizer';
 import { OptionalJwtAuthGuard } from 'src/auth/guard/jwt-optional.guard';
 import { IPaginationOptions } from 'nestjs-typeorm-paginate';
 import { ParseNumberArrayPipe } from '../helper/pipe/parseNumberArrayPipe';
+
  
 @UseInterceptors(ClassSerializerInterceptor)
 @SerializeOptions({
@@ -141,6 +142,11 @@ export class BooksController {
   async favourite(@Request() req,@Query('sort') sort?:string,@Query('title') title?:string){
     const userId = req.user.id
      return this.booksService.findUserFavourite(userId,sort,title);
+  }
+
+  @Get("/chapter/chapter")
+  async Chapter(){
+    return this.booksService.chapter()
   }
 
 }

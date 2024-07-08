@@ -44,6 +44,9 @@ export class Book {
 
   @Column({ type: 'int' })
   userId: number;
+  
+  @Column({ type: 'int' , default: 0})
+  chapterNum: number;
 
   @Column({ default: 0 })
   favouriteCount: number;
