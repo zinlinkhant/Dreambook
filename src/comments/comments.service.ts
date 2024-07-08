@@ -54,7 +54,7 @@ export class CommentsService {
     return comments
   }
 
-  async createReply(user,parentId,replyCommentDto:UpdateCommentDto){
+  async createReply(user:User,parentId:number,replyCommentDto:UpdateCommentDto){
     const comment = await this.commentsRepository.findOne({where:{id:parentId}})
     const bookId = comment.bookId
     const text = replyCommentDto.text

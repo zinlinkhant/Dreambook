@@ -21,7 +21,7 @@ export class CommentsController {
     return this.commentService.create(createCommentDto, user);
   }
   @Post("reply")
-  async reply(@Request() req,@Param('parentId') parentId:number,@Body() replyCommentDto:UpdateCommentDto) {
+  async reply(@Request() req,@Query('parentId') parentId:number,@Body() replyCommentDto:UpdateCommentDto) {
     const user: User = req.user;
     return this.commentService.createReply(user,parentId,replyCommentDto);
   }
