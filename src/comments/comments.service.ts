@@ -55,18 +55,19 @@ export class CommentsService {
   }
 
   async createReply(user:User,parentId:number,replyCommentDto:UpdateCommentDto){
-    const comment = await this.commentsRepository.findOne({where:{id:parentId}})
-    const bookId = comment.bookId
     const text = replyCommentDto.text
     const replyComment = this.commentsRepository.create({
       text,
-      bookId:bookId,
       userId: user.id,
       parentId:parentId
     });
     await this.commentsRepository.save(replyComment);
 
     return this.commentsRepository.find({where:{id:replyComment.id},relations:{user:true,book:true}})
+  }
+
+  async countComments(id){
+     return this.commentsRepository.count({ where: { parentId: id } });
   }
 
   async update(

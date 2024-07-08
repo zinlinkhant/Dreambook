@@ -10,7 +10,7 @@ export class Comment {
   @Column({ type: 'int' })
   userId: number;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int' , nullable:true })
   bookId: number;
 
   @Column({ type: 'text' })

@@ -36,6 +36,11 @@ export class CommentsController {
     return this.commentService.findRepliedComments(id)
   }
 
+  @Get('count/:id')
+  async countByComment(@Param('id') id: number){
+    return this.commentService.countComments(id)
+  }
+
   @Patch(':id')
   async update(@Param('id') id: number, @Body() updateCommentDto: UpdateCommentDto, @Request() req) {
     const user: User = req.user;
