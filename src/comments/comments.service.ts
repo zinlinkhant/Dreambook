@@ -24,13 +24,15 @@ export class CommentsService {
     createCommentDto: CreateCommentDto,
     user: User,
   ): Promise<Comment> {
-    const { bookSlug, text , parentId } = createCommentDto;
-    const bookId = (await this.bookRepository.findOne({where:{slug:bookSlug}})).id
+    const { bookSlug, text, parentId } = createCommentDto;
+    const bookId = (
+      await this.bookRepository.findOne({ where: { slug: bookSlug } })
+    ).id;
     const comment = this.commentsRepository.create({
       text,
       bookId,
       userId: user.id,
-      parentId
+      parentId,
     });
     await this.commentsRepository.save(comment);
 
@@ -40,34 +42,47 @@ export class CommentsService {
     });
   }
 
-  async findAllBySlug(slug: string){
-    const book = await this.bookRepository.findOne({where:{slug}})
-    const bookId = book.id
+  async findAllBySlug(slug: string) {
+    const book = await this.bookRepository.findOne({
+      where: { slug },
+    });
+    const bookId = book.id;
     return this.commentsRepository.find({
       where: { bookId },
-      relations: {user:true},
+      relations: { user: true },
+      order: { createdAt: 'DESC' },
     });
   }
 
-  async findRepliedComments(id:number){
-    const comments = await this.commentsRepository.find({where:{parentId:id},relations:{user:true}})
-    return comments
+  async findRepliedComments(id: number) {
+    const comments = await this.commentsRepository.find({
+      where: { parentId: id },
+      relations: { user: true },
+    });
+    return comments;
   }
 
-  async createReply(user:User,parentId:number,replyCommentDto:UpdateCommentDto){
-    const text = replyCommentDto.text
+  async createReply(
+    user: User,
+    parentId: number,
+    replyCommentDto: UpdateCommentDto,
+  ) {
+    const text = replyCommentDto.text;
     const replyComment = this.commentsRepository.create({
       text,
       userId: user.id,
-      parentId:parentId
+      parentId: parentId,
     });
     await this.commentsRepository.save(replyComment);
 
-    return this.commentsRepository.find({where:{id:replyComment.id},relations:{user:true,book:true}})
+    return this.commentsRepository.find({
+      where: { id: replyComment.id },
+      relations: { user: true, book: true },
+    });
   }
 
-  async countComments(id){
-     return this.commentsRepository.count({ where: { parentId: id } });
+  async countComments(id) {
+    return this.commentsRepository.count({ where: { parentId: id } });
   }
 
   async update(

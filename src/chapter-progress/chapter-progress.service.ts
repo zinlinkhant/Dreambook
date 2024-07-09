@@ -20,12 +20,16 @@ export class ChapterProgressService {
     slug: string,
     user: User,
   ): Promise<ChapterProgress[]> {
-    const bookId = (await this.bookRepository.findOne({where:{slug:slug}})).id
+    const book = await this.bookRepository.findOne({where:{slug:slug}})
     return this.chapterProgressRepository.find({
       where: {
-        bookId: bookId,
+        bookId: book.id,
         userId: user.id,
       },
+      relations:{
+        user:true,
+        book:true,
+      }
     });
   }
 
