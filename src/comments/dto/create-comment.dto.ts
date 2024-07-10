@@ -1,8 +1,9 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 export class CreateCommentDto {
   @IsNotEmpty()
   @IsString()
-  @Min(3)
+    @Transform(({ value }) => String(value))
   text: string;
 
   @IsNotEmpty()

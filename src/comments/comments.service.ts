@@ -110,9 +110,9 @@ export class CommentsService {
     });
   }
 
-  async remove(id: number, user: User): Promise<string> {
+  async remove(id: number, user: User) {
     const comment = await this.commentsRepository.findOne({
-      where: { id, userId: user.id },
+      where: { id:id, userId: user.id },
     });
     const userId = user.id;
     if (!comment) {
@@ -124,6 +124,5 @@ export class CommentsService {
       throw new UnauthorizedException('you do not own this comment');
     }
     await this.commentsRepository.remove(comment);
-    return 'deleted';
   }
 }

@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateChapterDto {
@@ -15,5 +16,6 @@ export class CreateChapterDto {
 
   @IsNotEmpty()
   @IsString()
-  status: boolean; // Example: 'draft', 'published'
+  @Transform(({ value }) => String(value))
+  status: string; // Example: 'draft', 'published'
 }

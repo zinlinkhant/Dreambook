@@ -15,6 +15,7 @@ import { FavouriteModule } from './favourite/favourite.module';
 import { InterestedCategoryModule } from './interested-category/interested-category.module';
 import { CommentsModule } from './comments/comments.module';
 import { HistoryModule } from './history/history.module';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 
 
@@ -24,6 +25,10 @@ import { HistoryModule } from './history/history.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ThrottlerModule.forRoot([{
+      ttl: 60000,
+      limit: 10,
+    }]),
    TypeOrmModule.forRoot(config),
     AuthModule,
     UsersModule,
