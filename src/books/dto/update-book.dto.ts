@@ -1,8 +1,9 @@
-import { IsString, IsOptional, IsInt, IsNotEmpty, IsArray } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsString, IsOptional, IsInt, IsArray } from 'class-validator';
 
 export class UpdateBookDto {
   @IsString({message:"title should be string"})
-  @IsNotEmpty({message:"title should not be empty"})
+  @IsOptional({message:"title should not be empty"})
   title?: string;
 
   @IsString()
@@ -10,7 +11,7 @@ export class UpdateBookDto {
   coverImg?: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   description?: string;
 
   @IsString()
@@ -24,6 +25,11 @@ export class UpdateBookDto {
   @IsArray()
   @IsString({ each: true })
   @IsOptional()
+  @Transform(({ obj, key }) => {
+    console.log('ho')
+    console.log(typeof JSON.parse(obj[key]))
+    return JSON.parse(obj[key]);
+  })
   keywords?: string[];
 
   @IsString()

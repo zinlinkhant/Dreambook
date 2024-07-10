@@ -5,17 +5,11 @@ import {
   IsString,
   IsNotEmpty,
   ArrayMinSize,
+  IsOptional,
 } from 'class-validator';
 export class CreateBookDto {
-  //   coverImg: string;
-  // title: string;
-  // description: string;
-  // categoryId: number;
-  // keywords: string[];
-  // status: boolean;
-  // userId: number;
-  @IsString()
-  @IsNotEmpty()
+
+  @IsOptional()
   coverImg: string;
 
   @IsString()
@@ -27,17 +21,17 @@ export class CreateBookDto {
   description: string;
 
   @IsInt()
+  @Transform(({ value }) => parseInt(value, 10))
   categoryId: number;
 
   @IsArray()
   @IsString({ each: true })
   @ArrayMinSize(1)
-  @Transform(({ obj, key }) => JSON.parse(obj[key]))
+  @Transform(({ obj, key }) => {
+    return JSON.parse(obj[key]);
+  })
   keywords: string[];
 
   @IsString()
   status: string;
-
-  @IsInt()
-  userId: number;
 }

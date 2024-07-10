@@ -43,17 +43,16 @@ export class BooksService {
     if (createBookDto.status === "true") {
       status = true
     }
-    const key = createBookDto.keywords
-    console.log(typeof key); 
+    console.log(typeof createBookDto.keywords);
+    
     
     const result = await this.firebaseService.uploadFile(image);
     const book = this.bookRepository.create({
       ...createBookDto,
       coverImg: result,
       slug,
-      user,
-      status:status,
-      keywords:key
+      userId:user.id,
+      status:status
     });
     return this.bookRepository.save(book);
   }
