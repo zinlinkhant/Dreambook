@@ -2,8 +2,8 @@ import { Transform } from 'class-transformer';
 import { IsString, IsOptional, IsInt, IsArray } from 'class-validator';
 
 export class UpdateBookDto {
-  @IsString({message:"title should be string"})
-  @IsOptional({message:"title should not be empty"})
+  @IsString()
+  @IsOptional()
   title?: string;
 
   @IsString()
@@ -20,7 +20,8 @@ export class UpdateBookDto {
 
   @IsInt()
   @IsOptional()
-  categoryId?: number;
+  @Transform(({ value }) => parseInt(value, 10))
+  categoryId: number;
 
   @IsArray()
   @IsString({ each: true })

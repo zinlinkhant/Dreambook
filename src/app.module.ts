@@ -15,7 +15,8 @@ import { FavouriteModule } from './favourite/favourite.module';
 import { InterestedCategoryModule } from './interested-category/interested-category.module';
 import { CommentsModule } from './comments/comments.module';
 import { HistoryModule } from './history/history.module';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 
 
@@ -42,6 +43,9 @@ import { ThrottlerModule } from '@nestjs/throttler';
     HistoryModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [{
+     provide: APP_GUARD,
+     useClass: ThrottlerGuard,
+   },AppService],
 })
 export class AppModule {}

@@ -202,7 +202,6 @@ export class BooksService {
       throw new UnauthorizedException('You do not own this book');
     }
     await this.bookRepository.delete(bookId);
-    return 'bookDeleted';
   }
   async favouriteBook(userId): Promise<Book[]> {
     const books = await this.bookRepository

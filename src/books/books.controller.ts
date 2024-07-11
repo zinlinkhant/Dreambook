@@ -46,6 +46,7 @@ export class BooksController {
 
 
   @UseGuards(JwtAuthGuard)
+  // @Throttle({5,60})
   @Get('recommended')
   async findRecommendedBooks(@Request() req, @Query('page') page: number = 1,
     @Query('limit') limit: number = 12) {
