@@ -1,12 +1,34 @@
+import { IsString, IsOptional, IsEmail, MinLength, IsEnum, IsInt } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { Gender } from '../entities/gender.enum';
 
-import { IsNumber, IsOptional, Max } from 'class-validator';
+export class UpdateUserDto {
+  @IsOptional()
+  @IsString()
+  name: string;
 
-export class UpdateUserDto{
-    @IsNumber()
-    @Max(50)
-    @IsOptional()
-    age: number;
+  @IsOptional()
+  @IsInt(null)
+  @Transform(({ value }) => parseInt(value, 10))
+  phone: string;
 
-    @IsOptional()
-    password: string;
+  @IsOptional()
+  @IsString()
+  bio: string;
+
+  @IsOptional()
+  @Transform(({ value }) => value?.[0])
+  profileImg: any;
+
+  @IsOptional()
+  @IsEnum(Gender)
+  gender: Gender;
+
+  @IsOptional()
+  @IsEmail()
+  email: string;
+
+  @IsOptional()
+  @MinLength(6)
+  password: string;
 }
