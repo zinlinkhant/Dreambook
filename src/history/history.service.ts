@@ -35,18 +35,35 @@ export class HistoryService {
     return this.historyRepository.save(history);
   }
 
-  async findAllByUser(
-    userId: number,
-    options: IPaginationOptions,
-  ): Promise<Pagination<History>> {
-    const queryBuilder = this.historyRepository
-      .createQueryBuilder('history')
-      .leftJoinAndSelect('history.user', 'user')
-      .leftJoinAndSelect('history.book', 'book')
-      .leftJoinAndSelect('book.category', 'category')
-      .where('history.userId = :userId', { userId })
-      .orderBy('history.createdAt', 'DESC');
+async findAllByUser(
+  userId: number,
+  options: IPaginationOptions,
+  sort?: string,
+  title?: string,
+): Promise<Pagination<History>> {
+  let queryBuilder = this.historyRepository
+    .createQueryBuilder('history')
+    .leftJoinAndSelect('history.user', 'user')
+    .leftJoinAndSelect('history.book', 'book')
+    .leftJoinAndSelect('book.category', 'category')
+    .where('history.userId = :userId', { userId });
 
-    return paginate<History>(queryBuilder, options);
+  if (title) {
+    queryBuilder.andWhere('book.title ILIKE :title', { title: `%${title}%` });
   }
+
+  switch (sort) {
+    case 'a-z':
+      queryBuilder.orderBy('book.title', 'ASC');
+      break;
+    case 'z-a':
+      queryBuilder.orderBy('book.title', 'DESC');
+      break;
+    default:
+      queryBuilder.orderBy('history.createdAt', 'DESC');
+      break;
+  }
+
+  return paginate<History>(queryBuilder, options);
+}
 }

@@ -17,12 +17,12 @@ export class HistoryController {
 
   @Get()
   async findAll(@Request() req,    @Query('page') page = 1,
-    @Query('limit') limit = 10,){
+    @Query('limit') limit = 10,@Query('sort') sort?:string,@Query('title') title?:string){
     const userId = req.user.id
     const options: IPaginationOptions = {
       page,
       limit,
     };
-    return this.historyService.findAllByUser(userId,options);
+    return this.historyService.findAllByUser(userId,options,sort,title);
   }
 }
