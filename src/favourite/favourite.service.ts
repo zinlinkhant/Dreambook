@@ -50,7 +50,7 @@ export class FavouriteService {
   }
 
 
-  async deleteById(bookId: number, user: User): Promise<void> {
+  async deleteById(bookId: number, user: User){
     const favourite = await this.favouritesRepository.findOne({where:{bookId:bookId , userId :user.id}});
     if (!favourite) {
       throw new NotFoundException(`book with id ${bookId} not found.`);
@@ -62,6 +62,7 @@ export class FavouriteService {
     book.favouriteCount -= 1;
     await this.booksRepository.save(book);
     await this.favouritesRepository.remove(favourite);
+    return this.favouritesRepository.find({ where: { userId:user.id} });
   }
 
 }
