@@ -114,6 +114,7 @@ export class CommentsService {
     const comment = await this.commentsRepository.findOne({
       where: { id:id, userId: user.id },
     });
+    const bookId = comment.bookId
     const userId = user.id;
     if (!comment) {
       throw new NotFoundException(
@@ -124,5 +125,6 @@ export class CommentsService {
       throw new UnauthorizedException('you do not own this comment');
     }
     await this.commentsRepository.remove(comment);
+    return this.commentsRepository.find({where:{bookId:bookId}})
   }
 }

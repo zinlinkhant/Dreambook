@@ -120,7 +120,7 @@ export class ChaptersService {
     return this.chaptersRepository.save(chapter);
   }
 
-  async deleteChapter(user: User, chapterId: number): Promise<void> {
+  async deleteChapter(user: User, chapterId: number){
     const chapter = await this.findOne(chapterId);
     const book = await this.bookRepository.findOne({
       where: { id: chapter.bookId },
@@ -137,5 +137,6 @@ export class ChaptersService {
     await this.bookRepository.save(book);
 
     await this.chaptersRepository.delete(chapterId);
+    return this.chaptersRepository.find({where:{bookId:book.id}})
   }
 }
