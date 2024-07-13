@@ -27,8 +27,9 @@ export class CommentsController {
   }
 
   @Get('book')
-  async findAllByBookId(@Query('slug') slug: string) {
-    return this.commentService.findAllBySlug(slug);
+  async findAllByBookId(@Query('slug') slug: string,@Query('page') page: number = 1,
+    @Query('limit') limit: number = 12,) {
+    return this.commentService.findAllBySlug(slug,{page,limit});
   }
 
   @Get(':id')

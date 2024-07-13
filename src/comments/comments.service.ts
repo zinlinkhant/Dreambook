@@ -10,6 +10,7 @@ import { Book } from '../books/entities/book.entity';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { Comment } from './entities/comment.entity';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
 
 @Injectable()
 export class CommentsService {
@@ -42,17 +43,24 @@ export class CommentsService {
     });
   }
 
-  async findAllBySlug(slug: string) {
-    const book = await this.bookRepository.findOne({
-      where: { slug },
-    });
-    const bookId = book.id;
-    return this.commentsRepository.find({
-      where: { bookId },
-      relations: { user: true },
-      order: { createdAt: 'DESC' },
-    });
+  async findAllBySlug(slug: string, options: IPaginationOptions) {
+  const book = await this.bookRepository.findOne({
+    where: { slug },
+  });
+
+  if (!book) {
+    throw new NotFoundException(`Book with slug ${slug} not found.`);
   }
+
+  const bookId = book.id;
+
+  const queryBuilder = this.commentsRepository.createQueryBuilder('comment')
+    .leftJoinAndSelect('comment.user', 'user')
+    .where('comment.bookId = :bookId', { bookId })
+    .orderBy('comment.createdAt', 'DESC');
+
+  return paginate<Comment>(queryBuilder, options);
+}
 
   async findRepliedComments(id: number) {
     const comments = await this.commentsRepository.find({
