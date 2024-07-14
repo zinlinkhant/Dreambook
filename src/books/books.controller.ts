@@ -75,7 +75,7 @@ export class BooksController {
   ) {
     const options: IPaginationOptions = {
       page: page || 1,
-      limit: limit || 10,
+      limit: limit || 12,
     };
     const userId = req.user.id;
     return this.booksService.searchBooks(userId, options, title, author,categoryIds,categoryId,searchUserId,sort);
