@@ -8,8 +8,7 @@ export class UpdateUserDto {
   name: string;
 
   @IsOptional()
-  @IsInt(null)
-  @Transform(({ value }) => parseInt(value, 10))
+  @IsString()
   phone: string;
 
   @IsOptional()

@@ -6,9 +6,8 @@ export class CreateUserDto {
   @IsString()
   name: string;
 
-  @IsInt()
-  @Transform(({ value }) => parseInt(value, 10))
-  phone: number;
+  @IsString()
+  phone: string;
 
   @IsString()
   bio: string;
