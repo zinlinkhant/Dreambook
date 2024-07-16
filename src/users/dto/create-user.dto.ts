@@ -1,4 +1,4 @@
-import { IsString, IsEmail, MinLength, IsEnum, IsInt } from 'class-validator';
+import { IsString, IsEmail, MinLength, IsEnum } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { Gender } from '../entities/gender.enum';
 

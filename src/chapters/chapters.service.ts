@@ -102,16 +102,7 @@ export class ChaptersService {
     if (!book) {
       throw new NotFoundException(`Book not found.`);
     }
-    const existingChapter = await this.chaptersRepository.findOne({
-      where: {
-        chapterNum: updateChapterDto.chapterNum,
-        bookId: chapter.bookId,
-      },
-    });
 
-    if (existingChapter) {
-      throw new ConflictException('Chapter number already exists in this book');
-    }
     if (book.userId !== user.id) {
       throw new UnauthorizedException('You do not own this book');
     }
