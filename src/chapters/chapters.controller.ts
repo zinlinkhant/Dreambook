@@ -39,9 +39,9 @@ export class ChaptersController {
   }
 
   @Get('books')
-  findByBookId(@Request() req, @Query('slug') slug: string) {
+  findByBookId(@Request() req, @Query('slug') slug: string,@Query('sort') sort:string) {
     const user: User = req.user;
-    return this.chaptersService.findBySlug(user, slug);
+    return this.chaptersService.findBySlug(user, slug,sort);
   }
 
   @Get(':chapterId')

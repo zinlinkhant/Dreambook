@@ -21,25 +21,22 @@ export class ChaptersService {
     private bookRepository: Repository<Book>,
   ) {}
 
-  async create(
-    createChapterDto: CreateChapterDto,
-    slug: string,
-  ){
+  async create(createChapterDto: CreateChapterDto, slug: string) {
     const book = await this.bookRepository.findOne({
       where: { slug: slug },
     });
     if (!book) {
       throw new NotFoundException(`Book not found.`);
     }
-    const bookId = book.id
+    const bookId = book.id;
     const highestChapter = await this.chaptersRepository
       .createQueryBuilder('chapter')
       .where('chapter.bookId = :bookId', { bookId })
       .orderBy('chapter.chapterNum', 'DESC')
       .getOne();
-    let nextChapterNum = 1
-    if (highestChapter){
-       nextChapterNum =highestChapter.chapterNum + 1;
+    let nextChapterNum = 1;
+    if (highestChapter) {
+      nextChapterNum = highestChapter.chapterNum + 1;
     }
 
     const existingChapter = await this.chaptersRepository.findOne({
@@ -49,22 +46,27 @@ export class ChaptersService {
     if (existingChapter) {
       throw new ConflictException('Chapter number already exists in this book');
     }
-    let status = false
-    if (createChapterDto.status === "true") {
-      status = true
+    let status = false;
+    if (createChapterDto.status === 'true') {
+      status = true;
     }
 
-    const chapter = await this.chaptersRepository.create({...createChapterDto,chapterNum:nextChapterNum,bookId,status:status});
+    const chapter = await this.chaptersRepository.create({
+      ...createChapterDto,
+      chapterNum: nextChapterNum,
+      bookId,
+      status: status,
+    });
     book.chapterNum += 1;
     await this.bookRepository.save(book);
     return this.chaptersRepository.save(chapter);
   }
 
-  async findBySlug(user: User, slug:string): Promise<Chapter[]> {
+  async findBySlug(user: User, slug: string, sort: string): Promise<Chapter[]> {
     const book = await this.bookRepository.findOne({
-      where: { slug:slug },
+      where: { slug: slug },
     });
-    const bookId = book.id
+    const bookId = book.id;
     if (!book) {
       throw new NotFoundException(`Book with id ${bookId} not found.`);
     }
@@ -77,12 +79,33 @@ export class ChaptersService {
         },
       });
     }
-    return this.chaptersRepository.find({ where: { bookId, status: true } ,relations:{book:true}});
-    
+    if (sort === 'number') {
+       return this.chaptersRepository.find({
+        where: { bookId },
+        order: {
+          chapterNum: 'ASC',
+        },
+      });
+    }
+    if (sort === 'latest') {
+       return this.chaptersRepository.find({
+        where: { bookId },
+        order: {
+          createdAt: 'DESC',
+        },
+      });
+    }
+    return this.chaptersRepository.find({
+      where: { bookId, status: true },
+      relations: { book: true },
+    });
   }
 
   async findOne(id: number): Promise<Chapter> {
-    const chapter = await this.chaptersRepository.findOne({ where: { id },relations:{book:true} });
+    const chapter = await this.chaptersRepository.findOne({
+      where: { id },
+      relations: { book: true },
+    });
     if (!chapter) {
       throw new NotFoundException(`Chapter not found`);
     }
@@ -111,7 +134,7 @@ export class ChaptersService {
     return this.chaptersRepository.save(chapter);
   }
 
-  async deleteChapter(user: User, chapterId: number){
+  async deleteChapter(user: User, chapterId: number) {
     const chapter = await this.findOne(chapterId);
     const book = await this.bookRepository.findOne({
       where: { id: chapter.bookId },
@@ -128,6 +151,6 @@ export class ChaptersService {
     await this.bookRepository.save(book);
 
     await this.chaptersRepository.delete(chapterId);
-    return this.chaptersRepository.find({where:{bookId:book.id}})
+    return this.chaptersRepository.find({ where: { bookId: book.id } });
   }
 }
