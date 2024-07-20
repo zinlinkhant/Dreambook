@@ -365,6 +365,7 @@ export class BooksService {
       .createQueryBuilder('favourite')
       .leftJoinAndSelect('favourite.book', 'book')
       .leftJoinAndSelect('favourite.user', 'user')
+       .leftJoinAndSelect('book.category', 'category')
       .where('favourite.userId = :userId', { userId })
       .andWhere('book.status = :status', { status: true });
 

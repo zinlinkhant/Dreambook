@@ -50,7 +50,7 @@ export class ChaptersService {
     if (createChapterDto.status === 'true') {
       status = true;
     }
-
+    
     const chapter = await this.chaptersRepository.create({
       ...createChapterDto,
       chapterNum: nextChapterNum,
@@ -139,6 +139,7 @@ export class ChaptersService {
     const book = await this.bookRepository.findOne({
       where: { id: chapter.bookId },
     });
+    
 
     if (!book) {
       throw new NotFoundException(`Book not found.`);

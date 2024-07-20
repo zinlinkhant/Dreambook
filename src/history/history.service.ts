@@ -41,7 +41,7 @@ async findAllByUser(
   sort?: string,
   title?: string,
 ): Promise<Pagination<History>> {
-  let queryBuilder = this.historyRepository
+  const queryBuilder = this.historyRepository
     .createQueryBuilder('history')
     .leftJoinAndSelect('history.user', 'user')
     .leftJoinAndSelect('history.book', 'book')
