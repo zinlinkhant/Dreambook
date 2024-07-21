@@ -50,7 +50,7 @@ export class ChaptersService {
     if (createChapterDto.status === 'true') {
       status = true;
     }
-    
+
     const chapter = await this.chaptersRepository.create({
       ...createChapterDto,
       chapterNum: nextChapterNum,
@@ -80,7 +80,7 @@ export class ChaptersService {
       });
     }
     if (sort === 'number') {
-       return this.chaptersRepository.find({
+      return this.chaptersRepository.find({
         where: { bookId },
         order: {
           chapterNum: 'ASC',
@@ -88,7 +88,7 @@ export class ChaptersService {
       });
     }
     if (sort === 'latest') {
-       return this.chaptersRepository.find({
+      return this.chaptersRepository.find({
         where: { bookId },
         order: {
           createdAt: 'DESC',
@@ -115,7 +115,6 @@ export class ChaptersService {
   async update(
     id: number,
     updateChapterDto: UpdateChapterDto,
-    user: User,
   ): Promise<Chapter> {
     const chapter = await this.findOne(id);
     const book = await this.bookRepository.findOne({
@@ -125,9 +124,17 @@ export class ChaptersService {
     if (!book) {
       throw new NotFoundException(`Book not found.`);
     }
-
-    if (book.userId !== user.id) {
-      throw new UnauthorizedException('You do not own this book');
+    if (updateChapterDto.chapterNum) {
+      const Echapter = await this.chaptersRepository.find({
+        where: {
+          bookId: chapter.bookId,
+          chapterNum: updateChapterDto.chapterNum,
+        },
+      });
+      if (Echapter) {
+        throw new ConflictException("the chpter number already exist")
+      }
+      
     }
 
     Object.assign(chapter, updateChapterDto);
@@ -139,7 +146,6 @@ export class ChaptersService {
     const book = await this.bookRepository.findOne({
       where: { id: chapter.bookId },
     });
-    
 
     if (!book) {
       throw new NotFoundException(`Book not found.`);

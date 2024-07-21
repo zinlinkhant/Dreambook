@@ -53,10 +53,8 @@ export class ChaptersController {
   update(
     @Param('chapterId') id: string,
     @Body() updateChapterDto: UpdateChapterDto,
-    @Request() req,
   ) {
-    const user = req.user;
-    return this.chaptersService.update(+id, updateChapterDto, user);
+    return this.chaptersService.update(+id, updateChapterDto);
   }
 
   @Delete(':chapterId')
