@@ -364,8 +364,8 @@ export class BooksService {
     const queryBuilder = this.favouriteRepository
       .createQueryBuilder('favourite')
       .leftJoinAndSelect('favourite.book', 'book')
-      .leftJoinAndSelect('favourite.user', 'user')
        .leftJoinAndSelect('book.category', 'category')
+       .leftJoinAndSelect('book.user', 'user')
       .where('favourite.userId = :userId', { userId })
       .andWhere('book.status = :status', { status: true });
 
