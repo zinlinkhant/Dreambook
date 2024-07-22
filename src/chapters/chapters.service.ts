@@ -131,8 +131,8 @@ export class ChaptersService {
           chapterNum: updateChapterDto.chapterNum,
         },
       });
-      if (Echapter) {
-        throw new ConflictException("the chpter number already exist")
+      if (Echapter.length > 0) {
+        throw new ConflictException("the chapter number already exist")
       }
       
     }

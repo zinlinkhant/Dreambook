@@ -24,7 +24,7 @@ export class Chapter {
   @Column({ type: 'boolean', default: true })
   status: boolean;
 
-  @ManyToOne(() => Book, (book) => book.chapters)
+  @ManyToOne(() => Book, (book) => book.chapters, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'bookId' })
   book: Book;
 
@@ -34,3 +34,4 @@ export class Chapter {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 }
+                        
