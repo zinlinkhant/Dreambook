@@ -379,11 +379,7 @@ export class BooksService {
 
     return queryBuilder.getMany();
   }
-
-  // async chapter(){
-  //      const books = await this.bookRepository.find({ select: ['id'] });
-  //      return this.countChaptersForAllBooks(bo)
-  // }
+ 
 
   async chapter(): Promise<{ bookId: number; chapterCount: number }[]> {
     const books = await this.bookRepository.find();
