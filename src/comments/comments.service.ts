@@ -119,20 +119,27 @@ export class CommentsService {
   }
 
   async remove(id: number, user: User) {
+
     const comment = await this.commentsRepository.findOne({
-      where: { id:id, userId: user.id },
+      where: { id:id}
     });
-    const bookId = comment.bookId
+    let bookId = comment.bookId
+    let pComment = null;
+    if (comment.parentId) {
+      pComment = await this.commentsRepository.findOne({where:{id:comment.parentId}}) 
+      bookId = pComment.bookId
+    }
+    const book = await this.bookRepository.findOne({where:{id:bookId}})
     const userId = user.id;
     if (!comment) {
       throw new NotFoundException(
         `Comment with ID ${id} not found or you do not own this comment`,
       );
     }
-    if (comment.userId !== userId) {
-      throw new UnauthorizedException('you do not own this comment');
+    if (comment.userId === userId ||  book.userId === userId) {
+      await this.commentsRepository.remove(comment);
+      return this.commentsRepository.find({where:{bookId:bookId}})
     }
-    await this.commentsRepository.remove(comment);
-    return this.commentsRepository.find({where:{bookId:bookId}})
+    throw new UnauthorizedException('you don"t have the authority to delete this code');
   }
 }
