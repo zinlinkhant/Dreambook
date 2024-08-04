@@ -1,6 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
-import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 
@@ -16,8 +15,8 @@ export class CategoriesController {
   @UseInterceptors(FileInterceptor('icon'))
   create(
     @UploadedFile() image: Express.Multer.File,
-    @Body() createCategoryDto: CreateCategoryDto) {
-    return this.categoriesService.create(image,createCategoryDto);
+    @Body() body) {
+    return this.categoriesService.create(image,body);
   }
 
   @Get()

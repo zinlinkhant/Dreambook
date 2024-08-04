@@ -1,5 +1,4 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from './entities/category.entity';
@@ -19,11 +18,11 @@ export class CategoriesService {
 
   async create(
     image: Express.Multer.File,
-    createCategoryDto: CreateCategoryDto,
+    body,
   ) {
     const result = await this.firebaseService.uploadFile(image);
     const category = this.categoryRepository.create({
-      ...createCategoryDto,
+      ...body,
       icon: result,
     });
     return this.categoryRepository.save(category);
